@@ -4,20 +4,59 @@
   --color-primary: #131416;
   --color-secondary: #FFA15A;
   --color-tertiary: #1C1D21;
+  --font-body: 'Cinzel', serif;
+  --font-heading-family: 'Cormorant', serif;
+}
+
+@font-face {
+  font-family: 'Cormorant';
+  src: url('/fonts/Cormorant/CormorantGaramond-VariableFont_wght.ttf') format('truetype');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cormorant';
+  src: url('/fonts/Cormorant/CormorantGaramond-Italic-VariableFont_wght.ttf') format('truetype');
+  font-weight: 300 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cinzel';
+  src: url('/fonts/Cinzel/Cinzel-VariableFont_wght.ttf') format('truetype');
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
 }
 
 @theme inline {
   --color-primary: #131416;
   --color-secondary: #FFA15A;
   --color-tertiary: #1C1D21;
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-body);
+  --font-heading: var(--font-heading-family);
 }
 
 body {
   background-color: #131416;
   color: #ffffff;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body) !important;
+}
+
+body * {
+  font-family: inherit;
+}
+
+body h1,
+body h2,
+body h3,
+body h4,
+body h5,
+body h6 {
+  font-family: var(--font-heading-family);
 }
 
 /* Custom range slider thumb */

@@ -18,18 +18,18 @@ const panelVariants = {
   center: {
     opacity: 1,
     x: 0,
-    transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] },
+    transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] as const },
   },
   exit: (dir: number) => ({
     opacity: 0,
     x: dir * -24,
-    transition: { duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] },
+    transition: { duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] as const },
   }),
 };
 
 export default function SendPage() {
   const [tab, setTab]       = useState<Tab>("Send");
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState("");
 
   // +1 → going right (Send→Receive), -1 → going left (Receive→Send)
   const direction = tab === "Receive" ? 1 : -1;

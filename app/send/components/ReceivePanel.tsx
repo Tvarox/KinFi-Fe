@@ -1,16 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-
-const ADDRESS = "0x4b2a7c9d51e08f3a62b4d7e19c0a5f8e6c9d91f3";
+import { useAuth } from "@/lib/use-auth";
 
 export default function ReceivePanel() {
+  const { authenticated, ready, callBackend } = useAuth();
+  const [address, setAddress] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [network, setNetwork] = useState<"Base" | "USDC">("Base");
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!ready || !authenticated) return;
+
+    let cancelled = false;
+    callBackend("/wallet/address")
+      .then((response) => {
+        if (cancelled) return;
+        if (response.success && response.data?.smart_vault_address) {
+          setAddress(response.data.smart_vault_address);
+        } else {
+          setError(response.error?.message || "Unable to load your receive address");
+        }
+      })
+      .catch((requestError: Error) => {
+        if (!cancelled) setError(requestError.message || "Unable to load your receive address");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authenticated, callBackend, ready]);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(ADDRESS);
+    if (!address) return;
+    navigator.clipboard.writeText(address);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -40,18 +65,25 @@ export default function ReceivePanel() {
 
       {/* QR Code */}
       <div className="bg-white rounded-2xl p-5 shadow-lg">
-        <QRCodeSVG value={ADDRESS} size={180} bgColor="#ffffff" fgColor="#000000" />
+        {address ? (
+          <QRCodeSVG value={address} size={180} bgColor="#ffffff" fgColor="#000000" />
+        ) : (
+          <div className="flex h-[180px] w-[180px] items-center justify-center text-center text-sm text-gray-500">
+            {ready ? "Loading address..." : "Loading auth..."}
+          </div>
+        )}
       </div>
 
       {/* Address info */}
       <div className="text-center flex flex-col gap-1">
         <p className="text-xs text-gray-400">Your Main account address on Base</p>
-        <p className="text-xs font-mono text-gray-300 break-all">{ADDRESS}</p>
+        <p className="break-all font-mono text-xs text-gray-300">{address ?? "Unavailable"}</p>
       </div>
 
       {/* Copy button */}
       <button
         onClick={handleCopy}
+        disabled={!address}
         className="flex items-center gap-2 text-sm font-semibold rounded-xl px-8 py-3 transition-colors"
         style={{ backgroundColor: "#FFA15A", color: "#131416" }}
       >
@@ -62,7 +94,7 @@ export default function ReceivePanel() {
         </svg>
         {copied ? "Copied!" : "Copy address"}
       </button>
+      {error && <p className="text-center text-sm text-red-400">{error}</p>}
     </div>
   );
 }
-

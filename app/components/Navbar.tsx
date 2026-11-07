@@ -3,14 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
+import LoginButton from "../../components/LoginButton";
 
 const navLinks = [
-  { label: "Home",      href: "/" },
-  { label: "Earn",      href: "/earn" },
+  { label: "Home", href: "/" },
+  { label: "Earn", href: "/earn" },
+  { label: "Wallet", href: "/wallet" },
   { label: "Add Money", href: "/add-money" },
-  { label: "Send",      href: "/send" },
-  { label: "History",   href: "/history" },
-  { label: "Settings",  href: "/settings" },
+  { label: "Send", href: "/send" },
+  { label: "History", href: "/history" },
+  { label: "Settings", href: "/settings" },
 ];
 
 export default function Navbar() {
@@ -21,8 +23,15 @@ export default function Navbar() {
       className="w-full flex items-center justify-between px-8 h-16 border-b border-white/10"
       style={{ backgroundColor: "#131416" }}
     >
-      {/* Nav links */}
       <div className="flex items-center gap-8">
+        <Link href="/" aria-label="KinFi home" className="flex items-center">
+          <img
+            src="/kenfi-lockup-on-dark.svg"
+            alt="KinFi"
+            className="h-8 w-auto"
+          />
+        </Link>
+
         {navLinks.map((link) => {
           const isActive = pathname === link.href;
 
@@ -51,6 +60,11 @@ export default function Navbar() {
             </Link>
           );
         })}
+      </div>
+
+      {/* Login / Logout */}
+      <div className="flex items-center gap-4">
+        <LoginButton />
       </div>
     </nav>
   );

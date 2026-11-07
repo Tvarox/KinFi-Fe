@@ -1,4 +1,15 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import Link from "next/link";
+import { useAuth } from '@/lib/use-auth';
+
+interface Deposit {
+  tx_hash: string;
+  amount: string;
+  status: string;
+  created_at: number;
+}
 
 interface ActivityItem {
   id: string;
@@ -12,29 +23,19 @@ interface ActivityItem {
   isPending?: boolean;
 }
 
-export default function RecentActivityCard() {
-  const activities: ActivityItem[] = [
-    {
-      id: "1",
-      title: "Auto-earn to Morpho",
-      meta: "20% rule · Oct 28, 14:03",
-      amount: "$48.25",
-      amountColor: "white",
-      icon: (
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10" />
-          <path d="m16 12-4-4-4 4M12 16V8" />
-        </svg>
-      ),
-      iconBg: "#FFA15A22",
-      iconColor: "#FFA15A",
-    },
-    {
-      id: "2",
+function formatActivity(deposits: Deposit[]): ActivityItem[] {
+  return deposits.map((d) => {
+    const amountNum = Number(BigInt(d.amount)) / 1e6;
+    const isPending = d.status === "pending";
+    const date = new Date(d.created_at * 1000);
+    const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+    return {
+      id: d.tx_hash,
       title: "Added money",
-      meta: "Apple Pay · fee $8.75 · Oct 28, 14:02",
-      amount: "+$241.25",
-      amountColor: "green",
+      meta: `Deposit · ${dateStr}`,
+      amount: `+$${amountNum.toFixed(2)}`,
+      amountColor: "green" as const,
       icon: (
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 5v14M5 12h14" />
@@ -42,59 +43,60 @@ export default function RecentActivityCard() {
       ),
       iconBg: "#16653422",
       iconColor: "#4ade80",
-    },
-    {
-      id: "3",
-      title: "Sent to Priya",
-      meta: "0x8f2d...a41c · Oct 27, 11:40",
-      amount: "−$40.00",
-      amountColor: "red",
-      icon: (
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M7 17 17 7M7 7h10v10" />
-        </svg>
-      ),
-      iconBg: "#7f1d1d22",
-      iconColor: "#f87171",
-    },
-    {
-      id: "4",
-      title: "Interest",
-      meta: "Morpho · Oct 27, 06:00",
-      amount: "+$0.31",
-      amountColor: "green",
-      icon: (
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
-          <polyline points="16 7 22 7 22 13" />
-        </svg>
-      ),
-      iconBg: "#16653422",
-      iconColor: "#4ade80",
-    },
-    {
-      id: "5",
-      title: "Added money",
-      meta: "Google Pay · fee $3.50 · Oct 26, 09:15",
-      amount: "+$96.50",
-      amountColor: "white",
-      isPending: true,
-      icon: (
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M12 6v6l4 2" />
-        </svg>
-      ),
-      iconBg: "#27272a",
-      iconColor: "#9ca3af",
-    },
-  ];
+      isPending,
+    };
+  });
+}
+
+export default function RecentActivityCard() {
+  const { authenticated, callBackend } = useAuth();
+  const [activities, setActivities] = useState<ActivityItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!authenticated) return;
+    setLoading(true);
+    callBackend('/wallet/transactions?type=deposit&limit=5')
+      .then((res) => {
+        if (res.success && res.data?.deposits) {
+          setActivities(formatActivity(res.data.deposits));
+        }
+      })
+      .catch(() => {
+        // Keep empty on error
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [authenticated, callBackend]);
 
   const amountColorMap = {
     white: "#ffffff",
     green: "#4ade80",
     red: "#f87171",
   };
+
+  if (loading) {
+    return (
+      <div className="rounded-2xl p-5 flex flex-col gap-4 flex-1" style={{ backgroundColor: "#1C1D21" }}>
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-semibold text-white">Recent activity</h2>
+        </div>
+        <div className="text-center text-gray-400 py-8">Loading...</div>
+      </div>
+    );
+  }
+
+  if (activities.length === 0) {
+    return (
+      <div className="rounded-2xl p-5 flex flex-col gap-4 flex-1" style={{ backgroundColor: "#1C1D21" }}>
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-semibold text-white">Recent activity</h2>
+        </div>
+        <div className="text-center text-gray-400 py-8">No recent activity</div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -160,4 +162,3 @@ export default function RecentActivityCard() {
     </div>
   );
 }
-

@@ -1,6 +1,10 @@
 import Link from "next/link";
 
-export default function BalanceHero() {
+interface BalanceHeroProps {
+  total?: string;
+}
+
+export default function BalanceHero({ total }: BalanceHeroProps) {
   return (
     <div className="flex flex-col gap-4 py-6">
       {/* Label */}
@@ -8,8 +12,7 @@ export default function BalanceHero() {
 
       {/* Balance */}
       <div className="flex items-end gap-0">
-        <span className="text-6xl font-bold text-white tracking-tight">$1,842</span>
-        <span className="text-4xl font-bold text-gray-400 mb-1">.60</span>
+        <span className="text-6xl font-bold text-white tracking-tight">{total ?? 'Loading...'}</span>
       </div>
 
       {/* Earn badge + disclaimer */}
@@ -18,12 +21,11 @@ export default function BalanceHero() {
           className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full"
           style={{ backgroundColor: "#14532d55", color: "#4ade80" }}
         >
-          {/* Trending up icon */}
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
             <polyline points="16 7 22 7 22 13" />
           </svg>
-          +$3.84 earned this month
+          Earned from auto-earn
         </span>
         <span className="text-xs text-gray-500">Illustrative estimate, not guaranteed</span>
       </div>
@@ -66,4 +68,3 @@ export default function BalanceHero() {
     </div>
   );
 }
-

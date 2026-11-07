@@ -70,21 +70,21 @@ function IconDownload() {
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 
-type ActivityRow = {
+export type ActivityRow = {
   date: string;
   time: string;
   activity: string;
   details: string;
-  status: "Completed" | "Pending";
+  status: "Completed" | "Pending" | "Failed";
   amount: string;
   amountColor: "white" | "green" | "red";
-  icon: React.ReactNode;
+  icon: React.ReactNode | "plus";
   iconBg: string;
   iconColor: string;
   tag: "Added" | "Sent" | "Received" | "Earn";
 };
 
-const rows: ActivityRow[] = [
+const sampleRows: ActivityRow[] = [
   {
     date: "Oct 28", time: "14:03",
     activity: "Auto-earn to Morpho", details: "20% rule",
@@ -147,7 +147,12 @@ const amountStyles: Record<string, string> = {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export default function ActivityTable() {
+type ActivityTableProps = {
+  rows?: ActivityRow[];
+  loading?: boolean;
+};
+
+export default function ActivityTable({ rows = sampleRows, loading = false }: ActivityTableProps) {
   const [activeTab, setActiveTab] = useState<Tab>("All");
 
   const filtered =
@@ -230,6 +235,10 @@ export default function ActivityTable() {
 
       {/* Rows */}
       <div className="divide-y divide-white/5">
+        {loading && <div className="px-5 py-10 text-center text-gray-400">Loading transactions...</div>}
+        {!loading && filtered.length === 0 && (
+          <div className="px-5 py-10 text-center text-gray-400">No transactions found</div>
+        )}
         {filtered.map((row, i) => (
           <div
             key={i}
@@ -247,7 +256,7 @@ export default function ActivityTable() {
                 className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
                 style={{ backgroundColor: row.iconBg, color: row.iconColor }}
               >
-                {row.icon}
+                {row.icon === "plus" ? <IconPlus /> : row.icon}
               </div>
               <span className="text-sm font-medium text-white">{row.activity}</span>
             </div>
@@ -264,6 +273,14 @@ export default function ActivityTable() {
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
                   Completed
+                </span>
+              ) : row.status === "Failed" ? (
+                <span
+                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
+                  style={{ backgroundColor: "#7f1d1d44", color: "#f87171" }}
+                >
+                  <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
+                  Failed
                 </span>
               ) : (
                 <span
@@ -289,4 +306,3 @@ export default function ActivityTable() {
     </div>
   );
 }
-
