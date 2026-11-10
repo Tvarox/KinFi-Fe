@@ -13,7 +13,7 @@ export default function EarnSlider({ percent, setPercent }: Props) {
       {/* Header row */}
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-base font-semibold text-white">How much should earn?</h2>
+          <h2 className="text-base font-semibold text-white tracking-normal">How much should earn?</h2>
           <p className="text-xs text-gray-400 mt-0.5">Applies to each new deposit</p>
         </div>
         <span className="text-3xl font-bold text-white">{percent}%</span>
@@ -59,4 +59,3 @@ export default function EarnSlider({ percent, setPercent }: Props) {
     </div>
   );
 }
-

@@ -59,6 +59,14 @@ body h6 {
   font-family: var(--font-heading-family);
 }
 
+/* Let the shared particle layer show through application cards. */
+div[style*="background-color: rgb(28, 29, 33)"] {
+  background-color: rgba(28, 29, 33, 0.62) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
 /* Custom range slider thumb */
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;

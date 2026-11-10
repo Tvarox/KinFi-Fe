@@ -89,8 +89,8 @@ export default function EarnPage() {
   }
 
   return (
-    <div className="flex-1 px-8 py-8" style={{ backgroundColor: "#131416" }}>
-      <div className="max-w-5xl mx-auto flex flex-col gap-6">
+    <div className="flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-8" style={{ backgroundColor: 'transparent', position: 'relative', zIndex: 10 }}>
+      <div className="max-w-6xl lg:max-w-7xl mx-auto flex flex-col gap-2 tracking-wide">
         {/* Page Header */}
         <div>
           <h1 className="text-3xl font-bold text-white tracking-tight">Put idle money to work.</h1>
@@ -105,9 +105,9 @@ export default function EarnPage() {
           )}
         </div>
 
-        <div className="grid grid-cols-[1fr_280px] gap-5 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-3 items-start">
           {/* Left column — 4 stacked components */}
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-3">
             <EarnSlider       percent={percent}   setPercent={setPercent} />
             <ProtocolSelector protocol={protocol} setProtocol={setProtocol} />
             <ProjectionChart  principal={goesToEarning} apy={apy} />
@@ -124,7 +124,7 @@ export default function EarnPage() {
           />
 
           {/* Full-width row — spans both left + right columns */}
-          <div className="col-span-2">
+          <div className="lg:col-span-2">
             <YourPositions />
           </div>
         </div>

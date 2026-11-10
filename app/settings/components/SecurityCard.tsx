@@ -5,7 +5,7 @@ export default function SecurityCard() {
       style={{ backgroundColor: "#1C1D21" }}
     >
       <div>
-        <h2 className="text-xl font-semibold text-white">Security</h2>
+        <h2 className="text-2xl font-semibold text-white tracking-normal">Security</h2>
         <p className="text-xs text-gray-400 mt-0.5">For Main account</p>
       </div>
 
@@ -38,4 +38,3 @@ export default function SecurityCard() {
     </div>
   );
 }
-

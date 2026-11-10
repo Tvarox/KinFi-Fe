@@ -10,7 +10,7 @@ type Props = { protocol: string; setProtocol: (id: string) => void };
 export default function ProtocolSelector({ protocol, setProtocol }: Props) {
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="text-base font-semibold text-white">Where should it earn?</h2>
+      <h2 className="text-lg font-semibold text-white tracking-normal">Where should it earn?</h2>
 
       <div className="flex flex-col gap-2">
         {protocols.map((p) => {
@@ -66,4 +66,3 @@ export default function ProtocolSelector({ protocol, setProtocol }: Props) {
     </div>
   );
 }
-

@@ -1,6 +1,7 @@
 'use client';
 
 import { usePrivy } from '@privy-io/react-auth';
+import PixelPromptButton from '../app/components/PixelPromptButton';
 
 export default function LoginButton() {
   const { authenticated, login, logout, ready } = usePrivy();
@@ -11,23 +12,21 @@ export default function LoginButton() {
 
   if (!authenticated) {
     return (
-      <button
+      <PixelPromptButton
+        label="Connect Wallet"
         onClick={() => login()}
-        className="px-5 py-2 rounded-xl text-sm font-semibold transition-opacity hover:opacity-90"
-        style={{ backgroundColor: "#FFA15A", color: "#131416" }}
-      >
-        Connect Wallet
-      </button>
+        showSuccessState={false}
+        className="font-semibold"
+      />
     );
   }
 
   return (
-    <button
+    <PixelPromptButton
+      label="Disconnect"
       onClick={() => logout()}
-      className="px-5 py-2 rounded-xl text-sm font-medium transition-colors hover:bg-white/10 border border-white/15 text-white"
-      style={{ backgroundColor: "#1C1D21" }}
-    >
-      Disconnect
-    </button>
+      effectOnly
+      className="bg-[#1C1D21] font-medium"
+    />
   );
 }

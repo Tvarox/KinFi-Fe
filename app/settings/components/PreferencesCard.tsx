@@ -10,7 +10,7 @@ export default function PreferencesCard() {
       className="rounded-2xl p-6 flex flex-col gap-6"
       style={{ backgroundColor: "#1C1D21" }}
     >
-      <h2 className="text-xl font-semibold text-white">Preferences</h2>
+      <h2 className="text-2xl font-semibold text-white tracking-normal">Preferences</h2>
 
       {/* Hide balances row */}
       <div className="flex items-start justify-between gap-4">
@@ -55,4 +55,3 @@ export default function PreferencesCard() {
     </div>
   );
 }
-

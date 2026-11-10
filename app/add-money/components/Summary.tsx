@@ -28,7 +28,7 @@ export default function Summary({ amount }: Props) {
       className="rounded-2xl p-5 flex flex-col gap-5"
       style={{ backgroundColor: "#1C1D21" }}
     >
-      <h2 className="text-base font-semibold text-white">Summary</h2>
+      <h2 className="text-lg font-semibold text-white tracking-normal">Summary</h2>
 
       {/* Main rows */}
       <div className="flex flex-col gap-4">
@@ -90,4 +90,3 @@ export default function Summary({ amount }: Props) {
     </div>
   );
 }
-

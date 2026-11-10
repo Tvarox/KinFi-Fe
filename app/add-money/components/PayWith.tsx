@@ -37,7 +37,7 @@ type Props = { selected: string; setSelected: (id: string) => void };
 export default function PayWith({ selected, setSelected }: Props) {
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="text-base font-semibold text-white">Pay with</h2>
+      <h2 className="text-lg font-semibold text-white tracking-normal">Pay with</h2>
 
       <div className="flex flex-col gap-2">
         {methods.map((m) => {
@@ -86,4 +86,3 @@ export default function PayWith({ selected, setSelected }: Props) {
     </div>
   );
 }
-

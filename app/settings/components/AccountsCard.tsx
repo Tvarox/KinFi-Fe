@@ -30,7 +30,7 @@ export default function AccountsCard() {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-white">Accounts</h2>
+          <h2 className="text-2xl font-semibold text-white tracking-normal">Accounts</h2>
           <p className="text-xs text-gray-400 mt-0.5">Each account has its own address, balance and earn rule.</p>
         </div>
         <button
@@ -100,4 +100,3 @@ export default function AccountsCard() {
     </div>
   );
 }
-

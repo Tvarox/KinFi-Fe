@@ -174,7 +174,7 @@ export default function SendForm({ amount, setAmount }: Props) {
       {/* Warning */}
       <div
         className="flex gap-3 rounded-xl p-4"
-        style={{ backgroundColor: "#451a0388", borderLeft: "3px solid #92400e" }}
+        style={{ backgroundColor: "#451a0388" }}
       >
         <svg className="shrink-0 mt-0.5" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />

@@ -13,7 +13,7 @@ export default function StatsSummary({ rows }: { rows: ActivityRow[] }) {
   return (
     <div className="flex flex-col gap-3">
       {/* 4 stat boxes */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((s) => (
           <div
             key={s.label}
@@ -22,7 +22,7 @@ export default function StatsSummary({ rows }: { rows: ActivityRow[] }) {
           >
             <span className="text-xs text-gray-400">{s.label}</span>
             <span
-              className="text-2xl font-semibold"
+              className="text-3xl font-semibold"
               style={{ color: s.green ? "#4ade80" : "#ffffff" }}
             >
               ${s.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}

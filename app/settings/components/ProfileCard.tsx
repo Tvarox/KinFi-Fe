@@ -4,7 +4,7 @@ export default function ProfileCard() {
       className="rounded-2xl p-6 flex flex-col gap-5"
       style={{ backgroundColor: "#1C1D21" }}
     >
-      <h2 className="text-xl font-semibold text-white">Profile</h2>
+      <h2 className="text-2xl font-semibold text-white tracking-normal">Profile</h2>
 
       {/* Avatar + Display name */}
       <div className="flex items-center gap-4">
@@ -50,10 +50,9 @@ export default function ProfileCard() {
           </div>
         </div>
         <span
-          className="text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1.5"
+          className="text-xs font-medium px-2.5 py-1 rounded-full"
           style={{ backgroundColor: "#14532d", color: "#4ade80" }}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
           Verified
         </span>
       </div>
@@ -78,12 +77,10 @@ export default function ProfileCard() {
             <p className="text-xs text-gray-400">Needed for cards and larger limits. Not part of this demo.</p>
           </div>
         </div>
-        <span className="text-xs text-gray-400 flex items-center gap-1.5 whitespace-nowrap">
-          <span className="w-1.5 h-1.5 rounded-full bg-gray-400 inline-block" />
+        <span className="text-xs text-gray-400 whitespace-nowrap">
           Not started
         </span>
       </div>
     </div>
   );
 }
-

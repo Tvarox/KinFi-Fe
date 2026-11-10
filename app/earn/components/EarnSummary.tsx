@@ -26,7 +26,7 @@ export default function EarnSummary({
       className="rounded-2xl p-5 flex flex-col gap-5 sticky top-6"
       style={{ backgroundColor: "#1C1D21" }}
     >
-      <h2 className="text-base font-semibold text-white">Summary</h2>
+      <h2 className="text-lg font-semibold text-white tracking-normal">Summary</h2>
 
       {/* Rows */}
       <div className="flex flex-col gap-4">
@@ -61,4 +61,3 @@ export default function EarnSummary({
     </div>
   );
 }
-

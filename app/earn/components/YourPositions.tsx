@@ -19,7 +19,7 @@ export default function YourPositions() {
     >
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold text-white">Your positions</h2>
+        <h2 className="text-lg font-semibold text-white tracking-normal">Your positions</h2>
         <span className="text-xs text-gray-400">
           Lifetime earned{" "}
           <span className="font-semibold" style={{ color: "#4ade80" }}>$12.47</span>
@@ -29,7 +29,7 @@ export default function YourPositions() {
       {/* Positions */}
       <div className="flex flex-col divide-y divide-white/10">
         {positions.map((pos) => (
-          <div key={pos.id} className="flex items-center gap-4 py-4">
+          <div key={pos.id} className="flex flex-wrap items-center gap-4 py-4">
             {/* Avatar */}
             <div
               className="w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold shrink-0"
@@ -47,7 +47,7 @@ export default function YourPositions() {
             </div>
 
             {/* Balance */}
-            <span className="text-sm font-semibold text-white mr-3">
+            <span className="ml-auto text-sm font-semibold text-white mr-3">
               ${pos.balance.toFixed(2)}
             </span>
 
@@ -63,4 +63,3 @@ export default function YourPositions() {
     </div>
   );
 }
-

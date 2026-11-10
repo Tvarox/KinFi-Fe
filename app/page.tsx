@@ -119,7 +119,7 @@ export default function HomePage() {
   const earning = balanceValue(balances?.aave);
 
   return (
-    <div className="flex-1 px-8 py-8" style={{ backgroundColor: '#131416' }}>
+    <div className="flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-8" style={{ backgroundColor: 'transparent', position: 'relative', zIndex: 10 }}>
       <div
         className="mb-6 rounded-lg border p-4"
         style={{
@@ -130,15 +130,15 @@ export default function HomePage() {
         {health?.message ?? 'Checking backend...'}
       </div>
 
-      <div className="mx-auto flex max-w-5xl flex-col gap-6">
-        <div className="grid grid-cols-1 items-center gap-6 md:grid-cols-[1fr_360px]">
+      <div className="mx-auto flex max-w-6xl lg:max-w-7xl flex-col gap-2">
+        <div className="grid grid-cols-1 items-center gap-6 lg:grid-cols-[1fr_360px]">
           <BalanceHero total={total} />
           <div className="hidden md:block" />
         </div>
 
         <BalanceChart />
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
           <MetricCard label="Spendable" value={spendable} subtitle="Ready to send" />
           <MetricCard label="Earning" value={earning} subtitle="Auto-earn balance" />
           <MetricCard
@@ -149,7 +149,7 @@ export default function HomePage() {
           />
         </div>
 
-        <div className="grid grid-cols-1 items-start gap-5 md:grid-cols-[1fr_320px]">
+        <div className="grid grid-cols-1 items-start gap-2 lg:grid-cols-[1fr_320px]">
           <RecentActivityCard />
           <AutoEarnCard />
         </div>

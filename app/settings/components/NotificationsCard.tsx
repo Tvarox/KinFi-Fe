@@ -19,7 +19,7 @@ export default function NotificationsCard() {
       className="rounded-2xl p-6 flex flex-col gap-5"
       style={{ backgroundColor: "#1C1D21" }}
     >
-      <h2 className="text-xl font-semibold text-white">Notifications</h2>
+      <h2 className="text-2xl font-semibold text-white tracking-normal">Notifications</h2>
 
       <div className="flex flex-col gap-5">
         {notificationItems.map((item, i) => (
@@ -46,4 +46,3 @@ export default function NotificationsCard() {
     </div>
   );
 }
-

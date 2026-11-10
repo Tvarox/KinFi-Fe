@@ -158,13 +158,41 @@ export default function ActivityTable({ rows = sampleRows, loading = false }: Ac
   const filtered =
     activeTab === "All" ? rows : rows.filter((r) => r.tag === activeTab);
 
+  const downloadCsv = () => {
+    const headers = ["Date", "Time", "Activity", "Details", "Status", "Amount"];
+    const escapeCsvValue = (value: string) => `"${value.replace(/"/g, '""')}"`;
+    const csv = [
+      headers,
+      ...filtered.map((row) => [
+        row.date,
+        row.time,
+        row.activity,
+        row.details,
+        row.status,
+        row.amount,
+      ]),
+    ]
+      .map((row) => row.map(escapeCsvValue).join(","))
+      .join("\r\n");
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `kenfi-history-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div
-      className="rounded-2xl overflow-hidden"
+      className="rounded-2xl overflow-x-auto tracking-wide"
       style={{ backgroundColor: "#1C1D21" }}
     >
       {/* Top bar: search + date range + export */}
-      <div className="flex items-center gap-3 p-4 border-b border-white/10">
+      <div className="flex min-w-[720px] flex-wrap items-center gap-3 p-4 border-b border-white/10">
         {/* Search */}
         <div
           className="flex items-center gap-2 flex-1 rounded-xl px-4 py-2.5"
@@ -196,6 +224,8 @@ export default function ActivityTable({ rows = sampleRows, loading = false }: Ac
 
         {/* Export CSV */}
         <button
+          type="button"
+          onClick={downloadCsv}
           className="flex items-center gap-2 text-sm font-medium text-white border border-white/20 rounded-xl px-4 py-2.5 hover:border-white/40 transition-colors whitespace-nowrap"
         >
           <IconDownload />
@@ -204,7 +234,7 @@ export default function ActivityTable({ rows = sampleRows, loading = false }: Ac
       </div>
 
       {/* Filter tabs */}
-      <div className="flex items-center gap-6 px-5 pt-4 pb-0">
+      <div className="flex min-w-[520px] items-center gap-6 px-5 pt-4 pb-0">
         {tabs.map((tab) => {
           const isActive = activeTab === tab;
           return (
@@ -227,7 +257,7 @@ export default function ActivityTable({ rows = sampleRows, loading = false }: Ac
       </div>
 
       {/* Column headers */}
-      <div className="grid grid-cols-[120px_1fr_1fr_140px_120px] gap-4 px-5 py-3 border-t border-white/10">
+      <div className="grid min-w-[760px] grid-cols-[120px_1fr_1fr_140px_120px] gap-4 px-5 py-3 border-t border-white/10">
         {["Date", "Activity", "Details", "Status", "Amount"].map((h) => (
           <span key={h} className="text-xs text-gray-500">{h}</span>
         ))}
@@ -242,7 +272,7 @@ export default function ActivityTable({ rows = sampleRows, loading = false }: Ac
         {filtered.map((row, i) => (
           <div
             key={i}
-            className="grid grid-cols-[120px_1fr_1fr_140px_120px] gap-4 px-5 py-4 items-center hover:bg-white/[0.02] transition-colors"
+            className="grid min-w-[760px] grid-cols-[120px_1fr_1fr_140px_120px] gap-4 px-5 py-4 items-center hover:bg-white/[0.02] transition-colors"
           >
             {/* Date */}
             <div>

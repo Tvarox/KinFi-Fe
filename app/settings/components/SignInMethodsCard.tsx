@@ -5,7 +5,7 @@ export default function SignInMethodsCard() {
       style={{ backgroundColor: "#1C1D21" }}
     >
       <div>
-        <h2 className="text-xl font-semibold text-white">Sign-in methods</h2>
+        <h2 className="text-2xl font-semibold text-white tracking-normal">Sign-in methods</h2>
         <p className="text-xs text-gray-400 mt-0.5">
           Simulated in this demo. Nothing is linked to a real account.
         </p>
@@ -29,10 +29,9 @@ export default function SignInMethodsCard() {
           </div>
         </div>
         <span
-          className="text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1.5"
+          className="text-xs font-medium px-2.5 py-1 rounded-full"
           style={{ backgroundColor: "#14532d", color: "#4ade80" }}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
           Primary
         </span>
       </div>
@@ -95,4 +94,3 @@ export default function SignInMethodsCard() {
     </div>
   );
 }
-
