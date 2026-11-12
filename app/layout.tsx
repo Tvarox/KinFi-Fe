@@ -3,10 +3,11 @@ import "./globals.css";
 import Navbar from "./components/Navbar";
 import ParticleBackground from "./components/ParticleBackground";
 import Providers from "../components/Providers";
+import AuthGate from "../components/AuthGate";
 
 export const metadata: Metadata = {
-  title: "Kenfi",
-  description: "Kenfi Application",
+  title: "Kinfi",
+  description: "Your money, working smarter.",
   icons: {
     icon: "/kinfi-mark-on-dark.svg",
     shortcut: "/kinfi-mark-on-dark.svg",
@@ -22,7 +23,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <div className="relative z-10 flex h-screen min-h-[100dvh]">
             <Navbar />
-            <main className="flex-1 flex-col overflow-y-auto">{children}</main>
+            <main className="flex-1 flex-col overflow-y-auto">
+              <AuthGate>{children}</AuthGate>
+            </main>
           </div>
         </Providers>
       </body>

@@ -1,47 +1,69 @@
-// lib/api.ts
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8787/api";
+export const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8787/api";
 
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: {
-    code: string;
-    message: string;
-  };
+/** An error from the Kinfi backend, or from reaching it. */
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    /** Machine-readable code, e.g. "WALLET_NOT_READY". */
+    public readonly code: string,
+    public readonly status?: number,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
 }
 
-export async function fetchBackend<T = any>(
+interface Envelope<T> {
+  success?: boolean;
+  data?: T;
+  error?: { code?: string; message?: string } | string;
+}
+
+/**
+ * Call the backend and return the `data` of a successful response.
+ * Throws ApiError for HTTP errors, error envelopes and unreachable servers.
+ */
+export async function apiRequest<T>(
   path: string,
   options: {
     method?: string;
     headers?: Record<string, string>;
-    body?: any;
-  } = {}
-): Promise<ApiResponse<T>> {
+    body?: unknown;
+  } = {},
+): Promise<T> {
   const { method = "GET", headers = {}, body } = options;
 
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      ...headers,
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-
-  let data: ApiResponse<T>;
+  let response: Response;
   try {
-    data = await res.json();
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      method,
+      headers: { "Content-Type": "application/json", ...headers },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
   } catch {
-    data = {
-      success: false,
-      error: { code: "INVALID_RESPONSE", message: "Backend returned invalid JSON" },
-    };
+    throw new ApiError("Cannot reach Kinfi right now.", "NETWORK_ERROR");
   }
 
-  if (!res.ok) {
-    return data;
+  let payload: Envelope<T> | null = null;
+  try {
+    payload = (await response.json()) as Envelope<T>;
+  } catch {
+    // Not JSON. Handled below.
   }
 
-  return data;
+  if (!response.ok || payload?.success === false || !payload) {
+    // Older routes returned { error: "message" } instead of an envelope.
+    const error = payload?.error;
+    const message =
+      typeof error === "string" ? error : (error?.message ?? undefined);
+    const code = typeof error === "string" ? undefined : error?.code;
+    throw new ApiError(
+      message ?? `Request failed (${response.status})`,
+      code ?? (response.status === 401 ? "UNAUTHORIZED" : "REQUEST_FAILED"),
+      response.status,
+    );
+  }
+
+  return payload.data as T;
 }

@@ -9,11 +9,7 @@ import { Menu, X } from "lucide-react";
 
 const navLinks = [
   { label: "Home", href: "/" },
-  { label: "Earn", href: "/earn" },
-  { label: "Wallet", href: "/wallet" },
-  { label: "Add Money", href: "/add-money" },
-  { label: "Send", href: "/send" },
-  { label: "History", href: "/history" },
+  { label: "Receive", href: "/receive" },
   { label: "Settings", href: "/settings" },
 ];
 

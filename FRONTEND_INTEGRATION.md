@@ -2,188 +2,81 @@
 
 ## Overview
 
-KinFi-Fe is a Next.js App Router application using React, TypeScript, Tailwind
-CSS, Privy React Auth, and a shared authenticated API hook.
+KinFi-Fe is a Next.js App Router app (React, TypeScript, Tailwind) that signs
+users in with Privy and talks to the Kinfi backend. V0 is a Solana wallet:
+sign in, see your USDC balance, receive.
 
-The backend base URL is configured with:
+## Setup
 
-```text
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8787/api
+```bash
+cp .env.example .env.local   # then fill it in
+npm ci
+npm run dev
 ```
 
-Production deployments should provide the production API URL through the
-environment rather than hardcoding it.
+| Variable | Purpose |
+|---|---|
+| `NEXT_PUBLIC_PRIVY_APP_ID` | Privy app ID. If it is missing the app shows a "not configured" message. |
+| `NEXT_PUBLIC_API_BASE_URL` | Backend URL, default `http://localhost:8787/api` |
 
-## Authentication flow
+Privy dashboard settings the app relies on: Solana embedded wallets enabled,
+and identity tokens enabled (the backend requires both tokens).
 
-`components/Providers.tsx` wraps the application in `PrivyProvider`.
+## Authentication
 
-`lib/use-auth.ts` exposes:
+`components/Providers.tsx` wraps the app in `PrivyProvider`:
+email and Google sign-in, and `embeddedWallets.solana.createOnLogin:
+'users-without-wallets'`, so every user gets a Solana wallet on first sign-in.
 
-- `ready`
-- `authenticated`
-- `user`
-- `login`
-- `logout`
-- `getBackendHeaders`
-- `callBackend`
+`components/AuthGate.tsx` keeps signed-out visitors on `/login` and keys the
+page tree by user id, so one user's data can never show for another.
 
-Authenticated requests send:
+`lib/use-auth.ts` exposes `callBackend<T>(path)`, which sends both headers the
+backend requires and returns the response `data`:
 
 ```http
 Authorization: Bearer <Privy access token>
 privy-id-token: <Privy identity token>
 ```
 
-The hook now refuses to send a protected request when Privy has not supplied
-both tokens. This avoids sending unauthenticated requests that the backend
-would correctly reject with `401`.
+`lib/api.ts` throws `ApiError` (with a `code`) for error responses.
 
-## Page and endpoint integration
+## Data hooks
 
-### Home
+`lib/use-backend-query.ts`:
 
-`app/page.tsx`:
+- `useWalletAddress()` calls `GET /wallet/address`
+- `useUsdcBalance()` calls `GET /wallet/balances`
 
-- Checks `GET /health`.
-- Caches successful health status in `localStorage` under
-  `kinfi_health_check`.
-- Removes failed/stale health cache entries so failures can be retried.
-- Fetches `GET /wallet/balances` after Privy is ready and authenticated.
-- Displays loading, unavailable, and connect-wallet states instead of
-  fabricated balances.
+Both return `{ state, refreshing, refresh }`. `state.status` is `loading`,
+`creating-wallet`, `ready` or `error`. While Privy is still creating a new
+user's wallet the backend answers `WALLET_NOT_READY`; the hook retries every
+2 seconds (up to 10 times) instead of showing an error.
 
-The home page also uses:
+Balances arrive as integer strings in base units (6 decimals).
+`lib/format.ts` formats them with `BigInt` and truncates, never rounds up.
 
-- `/wallet/transactions` through `RecentActivityCard`.
-- `/wallet/threshold/settings` through `AutoEarnCard`.
+## Screens
 
-### Earn
+| Route | What it does |
+|---|---|
+| `/login` | Email or Google sign-in |
+| `/` | USDC balance with last-updated time and refresh, wallet address |
+| `/receive` | Address, QR code, copy and share, "USDC on Solana only" warning |
+| `/settings` | Signed-in account, wallet address, sign out |
 
-`app/earn/page.tsx` fetches `/wallet/balances` and uses the real total balance
-for projections. The previous hardcoded `$1,842.60` fallback was removed.
+## Parked screens
 
-The Earn slider and protocol selector currently calculate client-side
-projections. The slider is not saved to the backend because the backend
-threshold endpoint expects an absolute USDC threshold rather than a percentage.
+Earn, Add money, History, Send and the old vault wallet pages are in
+`app/_future/`. That is a private folder, so they are not routed, and they are
+excluded from `tsc` and ESLint. See `app/_future/README.md` for when each one
+comes back.
 
-### Wallet
-
-`app/wallet/page.tsx` uses:
-
-```text
-GET /wallet/balances
-```
-
-It displays:
-
-- Total vault balance
-- Embedded wallet balance
-- USDC balance
-- Idle vault balance
-- Aave earning balance
-
-The obsolete `/wallet/balance` call was removed.
-
-### Send
-
-`app/send/components/SendForm.tsx`:
-
-- Fetches the available embedded balance from `/wallet/balances`.
-- Validates a Base `0x` address.
-- Validates a positive USDC amount up to six decimal places.
-- Calls `POST /wallet/send` with:
-
-```json
-{
-  "to_address": "0x...",
-  "amount": "10.25"
-}
-```
-
-- Displays loading, success, and error states.
-
-### Receive
-
-`app/send/components/ReceivePanel.tsx`:
-
-- Fetches `GET /wallet/address`.
-- Uses the returned smart vault address for the QR code.
-- Copies the backend address instead of a placeholder address.
-
-### History
-
-`app/history/page.tsx` fetches:
-
-```text
-GET /wallet/transactions?type=all&limit=100
-```
-
-It maps backend deposits into the existing activity table and calculates the
-summary totals from loaded rows. Loading, empty, error, and unauthenticated
-states are handled.
-
-The backend currently returns deposits and card transactions. The frontend
-currently maps deposits; sends and earn operations require a normalized backend
-history feed before they can appear as complete history rows.
-
-### Wallet creation
-
-`app/wallet/create/page.tsx` calls:
-
-```text
-POST /wallet/create
-```
-
-and displays the returned smart vault address and status message.
-
-## Data format
-
-Balance values from the backend are integer micro-USDC strings:
-
-```text
-"1842600000" -> "$1,842.60"
-```
-
-Frontend formatting converts with:
-
-```ts
-Number(BigInt(value)) / 1e6
-```
-
-## Branding and fonts
-
-- Body font: local Cinzel font files in `public/fonts/Cinzel`.
-- Heading font: local Cormorant font files in `public/fonts/Cormorant`.
-- Dark/light favicon marks are configured in `app/layout.tsx`.
-- The navbar uses `public/kenfi-lockup-on-dark.svg`.
-
-## Known issues and follow-ups
-
-- Add Money is UI-only because the backend deposit route is currently
-  webhook-driven.
-- The home balance chart still contains illustrative historical data; the
-  backend does not yet expose a historical balance-series endpoint.
-- Send and receive require an authenticated Privy session and an embedded
-  wallet.
-- If an old `/wallet/balance` request appears in browser logs, restart the
-  Next.js dev server and hard-refresh to discard the stale client bundle.
-- The browser's Cross-Origin-Opener-Policy 404 check is separate from the
-  wallet API route and may be emitted by the Privy development flow.
-
-## Verification
-
-From this directory:
+## Checks
 
 ```bash
-npx tsc --noEmit
+npm run typecheck
+npm run lint
+npm test
 npm run build
-npm run dev
 ```
-
-For local authenticated API testing:
-
-1. Start the backend Worker on the configured port.
-2. Start the Next.js development server.
-3. Log in through Privy.
-4. Confirm requests contain both Privy headers.

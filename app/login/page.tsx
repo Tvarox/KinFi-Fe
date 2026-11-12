@@ -45,14 +45,14 @@ export default function LoginPage() {
             KinFi
           </h1>
           <p className="text-sm text-gray-400 mt-2">
-            Your smart wallet for earning and spending.
+            Your money, working smarter.
           </p>
         </div>
 
         {/* Divider */}
         <div className="flex items-center gap-4 mb-8">
           <div className="flex-1 h-px bg-white/10" />
-          <span className="text-xs text-gray-500">Connect to continue</span>
+          <span className="text-xs text-gray-500">Sign in to continue</span>
           <div className="flex-1 h-px bg-white/10" />
         </div>
 
@@ -67,12 +67,12 @@ export default function LoginPage() {
             <polyline points="10 17 15 12 10 7" />
             <line x1="15" y1="12" x2="3" y2="12" />
           </svg>
-          Connect Wallet
+          Continue with email or Google
         </button>
 
         {/* Footer text */}
         <p className="text-xs text-gray-500 text-center mt-6">
-          By connecting, you agree to our Terms of Service and Privacy Policy.
+          By continuing, you agree to our Terms of Service and Privacy Policy.
         </p>
       </div>
     </div>

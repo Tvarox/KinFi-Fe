@@ -1,41 +1,68 @@
 import PixelPromptButton from "../PixelPromptButton";
+import { formatUsdc } from "@/lib/format";
+import type { QueryState, UsdcBalance } from "@/lib/use-backend-query";
 
 interface BalanceHeroProps {
-  total?: string;
+  state: QueryState<UsdcBalance>;
+  refreshing: boolean;
+  onRefresh: () => void;
 }
 
-export default function BalanceHero({ total }: BalanceHeroProps) {
+function updatedText(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  return `Updated ${date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}`;
+}
+
+export default function BalanceHero({ state, refreshing, onRefresh }: BalanceHeroProps) {
+  let amount = "$0.00";
+  let note = "";
+  let isError = false;
+
+  if (state.status === "loading") {
+    amount = "...";
+    note = "Loading your balance";
+  } else if (state.status === "creating-wallet") {
+    amount = "...";
+    note = "Setting up your wallet";
+  } else if (state.status === "error") {
+    amount = "Unavailable";
+    note = state.message;
+    isError = true;
+  } else {
+    amount = formatUsdc(state.data.usdc) ?? "Unavailable";
+    note = updatedText(state.data.updated_at);
+  }
+
   return (
     <div className="flex flex-col gap-4 py-6">
-      {/* Label */}
-      <p className="text-sm text-gray-400">Total balance</p>
+      <p className="text-sm text-gray-400">Total balance · USDC on Solana</p>
 
-      {/* Balance */}
       <div className="flex items-end gap-0">
-        <span className="text-6xl font-bold text-white tracking-tight">{total ?? 'Loading...'}</span>
+        <span
+          className="text-6xl font-bold text-white tracking-tight"
+          aria-live="polite"
+        >
+          {amount}
+        </span>
       </div>
 
-      {/* Action buttons */}
+      <div className="flex items-center gap-3 text-xs" style={{ color: isError ? "#f87171" : "#9ca3af" }}>
+        <span>{note}</span>
+        {(state.status === "ready" || state.status === "error") && (
+          <button
+            type="button"
+            onClick={onRefresh}
+            disabled={refreshing}
+            className="rounded-full border border-white/15 px-3 py-1 text-gray-300 transition-colors hover:border-white/30 disabled:opacity-50"
+          >
+            {refreshing ? "Refreshing..." : state.status === "error" ? "Try again" : "Refresh"}
+          </button>
+        )}
+      </div>
+
       <div className="flex items-center gap-3 mt-1">
-        <PixelPromptButton label="Add money" href="/add-money" />
-
-        <PixelPromptButton href="/send" effectOnly className="bg-[#1C1D21]">
-          <span className="flex items-center gap-2">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M7 17 17 7M7 7h10v10" />
-            </svg>
-            Send
-          </span>
-        </PixelPromptButton>
-
-        <PixelPromptButton href="/send" effectOnly className="bg-[#1C1D21]">
-          <span className="flex items-center gap-2">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M17 7 7 17M17 17H7V7" />
-            </svg>
-            Receive
-          </span>
-        </PixelPromptButton>
+        <PixelPromptButton label="Receive" href="/receive" />
       </div>
     </div>
   );

@@ -13,7 +13,7 @@ export default function LoginButton() {
   if (!authenticated) {
     return (
       <PixelPromptButton
-        label="Connect Wallet"
+        label="Sign in"
         onClick={() => login()}
         showSuccessState={false}
         className="font-semibold"
@@ -23,7 +23,7 @@ export default function LoginButton() {
 
   return (
     <PixelPromptButton
-      label="Disconnect"
+      label="Sign out"
       onClick={() => logout()}
       effectOnly
       className="bg-[#1C1D21] font-medium"
