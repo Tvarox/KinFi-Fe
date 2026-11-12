@@ -4,7 +4,7 @@
 
 KinFi-Fe is a Next.js App Router app (React, TypeScript, Tailwind) that signs
 users in with Privy and talks to the Kinfi backend. V0 is a Solana wallet:
-sign in, see your USDC balance, receive.
+sign in, see your USDC balance, receive, send, and see your history.
 
 ## Setup
 
@@ -62,12 +62,36 @@ Balances arrive as integer strings in base units (6 decimals).
 |---|---|
 | `/login` | Email or Google sign-in |
 | `/` | USDC balance with last-updated time and refresh, wallet address |
+| `/send` | Send USDC: enter address and amount, review, confirm, then watch it confirm |
 | `/receive` | Address, QR code, copy and share, "USDC on Solana only" warning |
+| `/history` | USDC activity read from Solana, with Pending, Complete and Failed states |
 | `/settings` | Signed-in account, wallet address, sign out |
+
+## Sending
+
+`lib/use-send.ts` runs the flow:
+
+1. **prepare**: `POST /wallet/send/prepare`. The backend checks the address, amount, balance and limits and returns an unsigned transaction.
+2. **review**: the user sees the exact amount and the full address.
+3. **sign and send**: Privy's `signAndSendTransaction` with `options.sponsor: true`, so Kinfi pays the network fee.
+4. **record**: `POST /wallet/send/:id/submitted` with the signature (retried; a failure here never marks the payment failed).
+5. **wait**: poll `GET /wallet/send/:id` every 3 seconds, up to 2 minutes. Only the backend's answer can make a payment Complete.
+
+Privy dashboard prerequisites for step 3: gas sponsorship enabled for Solana, and
+"Allow transactions from the client" turned on. Without them sending fails.
+
+V0 limitation: the backend only builds transfers to wallets that already have a
+USDC token account. It never creates one.
+
+## History
+
+`lib/use-history.ts` pages through `GET /wallet/transactions` and, while any
+payment is pending, quietly refreshes every 5 seconds so it flips to Complete
+or Failed on its own.
 
 ## Parked screens
 
-Earn, Add money, History, Send and the old vault wallet pages are in
+Earn, Add money and the old vault wallet pages are in
 `app/_future/`. That is a private folder, so they are not routed, and they are
 excluded from `tsc` and ESLint. See `app/_future/README.md` for when each one
 comes back.

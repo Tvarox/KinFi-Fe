@@ -62,7 +62,8 @@ export default function BalanceHero({ state, refreshing, onRefresh }: BalanceHer
       </div>
 
       <div className="flex items-center gap-3 mt-1">
-        <PixelPromptButton label="Receive" href="/receive" />
+        <PixelPromptButton label="Send" href="/send" />
+        <PixelPromptButton label="Receive" href="/receive" effectOnly className="bg-[#1C1D21]" />
       </div>
     </div>
   );

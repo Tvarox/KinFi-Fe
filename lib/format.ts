@@ -27,3 +27,20 @@ export function shortenAddress(address: string, head = 4, tail = 4): string {
   if (address.length <= head + tail + 3) return address;
   return `${address.slice(0, head)}...${address.slice(-tail)}`;
 }
+
+/**
+ * Like formatUsdc but keeps every decimal the amount really has (at least 2,
+ * at most 6), for places where precision matters, such as a payment review.
+ * "10255000" becomes "$10.255".
+ */
+export function formatUsdcPrecise(baseUnits: string | undefined | null): string | null {
+  if (baseUnits === undefined || baseUnits === null) return null;
+  if (!/^\d+$/.test(baseUnits)) return null;
+
+  const value = BigInt(baseUnits);
+  const unit = BigInt(10) ** BigInt(USDC_DECIMALS);
+  const dollars = (value / unit).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const fraction = (value % unit).toString().padStart(USDC_DECIMALS, "0").replace(/0+$/, "");
+
+  return `$${dollars}.${fraction.padEnd(2, "0")}`;
+}
