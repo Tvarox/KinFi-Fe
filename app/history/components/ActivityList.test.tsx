@@ -72,7 +72,7 @@ describe("ActivityList", () => {
     expect(screen.getByText("Received from EPjF...Dt1v")).toBeInTheDocument();
     expect(screen.getByText("Sent to EPjF...Dt1v")).toBeInTheDocument();
     expect(screen.getByText("+$5.00")).toBeInTheDocument();
-    expect(screen.getByText("-$2.50")).toBeInTheDocument();
+    expect(screen.getByText("\u2212$2.50")).toBeInTheDocument();
   });
 
   it("labels every payment's state in plain words", () => {
@@ -99,7 +99,7 @@ describe("ActivityList", () => {
       item({ id: "u", status: "failed", direction: "sent", amount: null, counterparty: null, signature: "SIG-U" }),
     ]);
     render(<ActivityList />);
-    expect(screen.getByText("-$1.00")).toHaveClass("line-through");
+    expect(screen.getByText("\u2212$1.00")).toHaveClass("line-through");
     expect(screen.getByText("Unknown")).toBeInTheDocument();
     // No counterparty is known, so the row just says "Sent" (the tab also says Sent).
     expect(within(screen.getByRole("list")).getByText("Sent")).toBeInTheDocument();
@@ -151,9 +151,9 @@ describe("ActivityList", () => {
 
   it("shows a message if the next page failed, and keeps the list", () => {
     hook.state = ready([item({})], "cursor");
-    hook.moreError = "Cannot reach Kinfi right now.";
+    hook.moreError = "Cannot reach Kenfi right now.";
     render(<ActivityList />);
-    expect(screen.getByText("Cannot reach Kinfi right now.")).toBeInTheDocument();
+    expect(screen.getByText("Cannot reach Kenfi right now.")).toBeInTheDocument();
     expect(screen.getByText(/Received from/)).toBeInTheDocument();
   });
 

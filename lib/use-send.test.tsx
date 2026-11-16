@@ -94,12 +94,12 @@ describe("useSend: prepare", () => {
   it("shows a friendly message when the backend cannot be reached", async () => {
     backend({
       prepare: () => {
-        throw new ApiError("Cannot reach Kinfi right now.", "NETWORK_ERROR");
+        throw new ApiError("Cannot reach Kenfi right now.", "NETWORK_ERROR");
       },
     });
     const { result } = renderHook(() => useSend());
     await act(async () => void (await result.current.prepare("TO", "10")));
-    expect(result.current.state).toEqual({ step: "form", error: "Cannot reach Kinfi right now." });
+    expect(result.current.state).toEqual({ step: "form", error: "Cannot reach Kenfi right now." });
   });
 
   it("goes back to the form from review", async () => {

@@ -4,7 +4,7 @@ import { useIdentityToken, usePrivy } from "@privy-io/react-auth";
 import { useCallback } from "react";
 import { ApiError, apiRequest } from "./api";
 
-/** Privy session plus an authenticated call to the Kinfi backend. */
+/** Privy session plus an authenticated call to the Kenfi backend. */
 export function useAuth() {
   const { authenticated, user, login, logout, ready, getAccessToken } =
     usePrivy();

@@ -3,6 +3,7 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { usePathname, useRouter } from 'next/navigation';
 import { Fragment, useEffect } from 'react';
+import AccountSetupProvider from './AccountSetup';
 import EnsureSolanaWallet from './EnsureSolanaWallet';
 
 const PUBLIC_PATHS = ['/login'];
@@ -38,7 +39,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
   return (
     <Fragment key={user?.id}>
       <EnsureSolanaWallet />
-      {children}
+      <AccountSetupProvider>{children}</AccountSetupProvider>
     </Fragment>
   );
 }

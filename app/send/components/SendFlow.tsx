@@ -3,40 +3,83 @@
 import Link from "next/link";
 import { useState } from "react";
 import { formatUsdc, formatUsdcPrecise, shortenAddress } from "@/lib/format";
-import { baseUnitsToAmountInput, checkSendInput, explorerTxUrl } from "@/lib/send";
+import { amountToBaseUnits, baseUnitsToAmountInput, checkSendInput, explorerTxUrl } from "@/lib/send";
 import { useSend } from "@/lib/use-send";
 import { useUsdcBalance } from "@/lib/use-backend-query";
+import PixelPromptButton from "../../components/PixelPromptButton";
 
-const CARD = { backgroundColor: "#1C1D21" };
-const FIELD = { backgroundColor: "#131416" };
+const CARD = { backgroundColor: "rgba(28, 29, 33, 0.62)" };
+const FIELD = { backgroundColor: "rgba(19, 20, 22, 0.7)" };
+const SHELL = "anim-rise rounded-[22px] border border-white/[0.08] backdrop-blur-md";
+const QUICK_AMOUNTS = [5, 10, 25, 50];
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-start justify-between gap-6">
-      <span className="text-sm text-gray-400 shrink-0">{label}</span>
-      <span className="text-sm font-semibold text-white text-right break-all">{children}</span>
+    <div className="flex items-start justify-between gap-6 border-t border-white/[0.07] py-4 first:border-t-0">
+      <dt className="shrink-0 text-sm text-gray-400">{label}</dt>
+      <dd className="m-0 break-all text-right text-sm font-medium text-white">{children}</dd>
     </div>
   );
 }
 
-function PrimaryButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+function Steps({ current }: { current: 1 | 2 | 3 }) {
+  const items = ["Details", "Review", "Confirmation"];
   return (
-    <button
-      type="button"
-      {...props}
-      className="rounded-xl px-6 py-3 text-sm font-semibold transition-opacity disabled:opacity-40"
-      style={{ backgroundColor: "#FFA15A", color: "#131416" }}
-    />
+    <ol aria-label="Progress" className="flex flex-wrap items-center gap-2.5 text-[13px]">
+      {items.map((label, index) => {
+        const number = index + 1;
+        const done = number < current;
+        const active = number === current;
+        return (
+          <li
+            key={label}
+            aria-current={active ? "step" : undefined}
+            className={`flex items-center gap-2 ${active ? "font-medium text-white" : "text-gray-400"}`}
+          >
+            <span
+              aria-hidden="true"
+              className="flex h-[22px] w-[22px] items-center justify-center rounded-full text-xs"
+              style={
+                done
+                  ? { backgroundColor: "rgba(95,211,154,0.16)", color: "#6EE0A8" }
+                  : active
+                    ? { backgroundColor: "#FFA15A", color: "#131416", fontWeight: 600 }
+                    : { border: "1px solid rgba(255,255,255,0.2)" }
+              }
+            >
+              {done ? "✓" : number}
+            </span>
+            {label}
+            {number < 3 && <span aria-hidden="true" className="ml-1.5 h-px w-7 bg-white/20" />}
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 
-function SecondaryButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+function ResultLinks({ signature }: { signature: string | null }) {
+  if (!signature) return null;
   return (
-    <button
-      type="button"
-      {...props}
-      className="rounded-xl border border-white/15 px-6 py-3 text-sm font-semibold text-white transition-colors hover:border-white/30 disabled:opacity-40"
-    />
+    <a
+      href={explorerTxUrl(signature)}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-sm text-orange-400 underline hover:text-orange-300"
+    >
+      View on Solana Explorer
+    </a>
+  );
+}
+
+function HistoryLink() {
+  return (
+    <Link
+      href="/history"
+      className="inline-flex items-center justify-center rounded-[14px] border border-white/15 px-7 py-3.5 text-base font-semibold text-white transition-colors hover:border-white/40"
+    >
+      View history
+    </Link>
   );
 }
 
@@ -48,6 +91,7 @@ export default function SendFlow() {
 
   const available = balance.state.status === "ready" ? balance.state.data.usdc : null;
   const check = checkSendInput({ to, amount, available });
+  const addressLooksValid = to.trim() !== "" && check.addressError === null;
 
   const startOver = () => {
     setTo("");
@@ -61,47 +105,17 @@ export default function SendFlow() {
     const busy = state.step === "preparing";
     return (
       <form
-        className="rounded-2xl p-6 flex flex-col gap-6"
+        className={`${SHELL} flex flex-col gap-7 p-6 sm:p-8`}
         style={CARD}
         onSubmit={(event) => {
           event.preventDefault();
           if (check.canSubmit && !busy) void prepare(to, amount.trim());
         }}
       >
-        <div className="flex flex-col gap-2">
-          <label htmlFor="send-to" className="text-xs text-gray-400">To</label>
-          <input
-            id="send-to"
-            type="text"
-            value={to}
-            onChange={(event) => setTo(event.target.value)}
-            placeholder="Solana wallet address"
-            autoComplete="off"
-            spellCheck={false}
-            disabled={busy}
-            aria-invalid={check.addressError !== null}
-            className="w-full rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 outline-none font-mono"
-            style={FIELD}
-          />
-          {check.addressError && <p className="text-xs text-red-400">{check.addressError}</p>}
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <label htmlFor="send-amount" className="text-xs text-gray-400">Amount</label>
-            {available !== null && (
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => setAmount(baseUnitsToAmountInput(available))}
-                className="text-xs text-gray-300 underline disabled:opacity-40"
-              >
-                Max {formatUsdc(available)}
-              </button>
-            )}
-          </div>
-          <div className="flex items-center gap-1 rounded-xl px-5 py-5" style={FIELD}>
-            <span className="text-3xl font-semibold text-gray-500">$</span>
+        <div className="flex flex-col items-center gap-3.5 text-center">
+          <label htmlFor="send-amount" className="text-sm text-gray-400">Amount</label>
+          <div className="flex w-full items-center justify-center gap-0.5">
+            <span aria-hidden="true" className="font-display text-6xl leading-none text-gray-400 sm:text-[88px]">$</span>
             <input
               id="send-amount"
               type="text"
@@ -120,10 +134,83 @@ export default function SendFlow() {
               autoComplete="off"
               disabled={busy}
               aria-invalid={check.amountError !== null}
-              className="bg-transparent text-3xl font-semibold text-white w-full outline-none placeholder-gray-500"
+              className="font-display max-w-full bg-transparent text-6xl leading-none text-white outline-none placeholder-gray-600 sm:text-[88px]"
+              style={{ width: `${Math.min(Math.max(amount.length, 4) * 0.58 + 0.3, 8)}em` }}
             />
           </div>
-          {check.amountError && <p className="text-xs text-red-400">{check.amountError}</p>}
+
+          <div className="flex flex-wrap justify-center gap-2">
+            {QUICK_AMOUNTS.map((value) => {
+              const base = amountToBaseUnits(String(value));
+              const tooMuch = available !== null && base !== null && BigInt(base) > BigInt(available);
+              const selected = amount.trim() === String(value) || amount.trim() === `${value}.00`;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  disabled={busy || tooMuch}
+                  onClick={() => setAmount(String(value))}
+                  aria-pressed={selected}
+                  className={`rounded-full border px-[18px] py-2 text-sm font-medium transition-colors disabled:opacity-40 ${
+                    selected
+                      ? "border-orange-400/60 bg-orange-400/10 text-orange-400"
+                      : "border-white/15 text-white hover:border-orange-400/60"
+                  }`}
+                  style={selected ? undefined : FIELD}
+                >
+                  ${value}
+                </button>
+              );
+            })}
+          </div>
+
+          <p className="flex items-center gap-2 text-[13px] text-gray-400">
+            {available !== null ? <>Available {formatUsdc(available)}</> : "Checking your balance..."}
+            {available !== null && (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => setAmount(baseUnitsToAmountInput(available))}
+                className="font-medium text-orange-400 underline disabled:opacity-40"
+              >
+                Max
+              </button>
+            )}
+          </p>
+          {check.amountError && (
+            <p className="text-sm text-red-400" role="status">{check.amountError}</p>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-2.5 border-t border-white/[0.07] pt-6">
+          <label htmlFor="send-to" className="text-sm font-medium text-white">To</label>
+          <input
+            id="send-to"
+            type="text"
+            value={to}
+            onChange={(event) => setTo(event.target.value)}
+            placeholder="Solana wallet address"
+            autoComplete="off"
+            spellCheck={false}
+            disabled={busy}
+            aria-invalid={check.addressError !== null}
+            className="w-full rounded-[14px] border border-white/10 px-[18px] py-4 font-mono text-sm text-white placeholder-gray-500 outline-none focus:border-orange-400/60"
+            style={FIELD}
+          />
+          {check.addressError && <p className="text-[13px] text-red-400">{check.addressError}</p>}
+          {addressLooksValid && (
+            <p className="flex items-center gap-2 text-[13px]" style={{ color: "#6EE0A8" }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M5 12l5 5 9-10" />
+              </svg>
+              Looks like a valid Solana address
+            </p>
+          )}
+        </div>
+
+        <div className="flex items-center justify-between text-sm text-gray-400">
+          <span>Network fee</span>
+          <span className="text-white">Paid by Kenfi</span>
         </div>
 
         {state.step === "form" && state.error && (
@@ -132,9 +219,15 @@ export default function SendFlow() {
           </p>
         )}
 
-        <PrimaryButton type="submit" disabled={!check.canSubmit || busy}>
-          {busy ? "Checking..." : "Continue"}
-        </PrimaryButton>
+        <PixelPromptButton
+          type="submit"
+          size="lg"
+          showSuccessState={false}
+          disabled={!check.canSubmit || busy}
+          className="w-full"
+        >
+          {busy ? "Checking..." : "Review payment"}
+        </PixelPromptButton>
       </form>
     );
   }
@@ -144,29 +237,51 @@ export default function SendFlow() {
     const signing = state.step === "signing";
     const { prepared } = state;
     return (
-      <div className="rounded-2xl p-6 flex flex-col gap-6" style={CARD}>
-        <div className="flex flex-col gap-1">
-          <span className="text-xs text-gray-400">You are sending</span>
-          <span className="text-4xl font-bold text-white tracking-tight">
+      <div className={`${SHELL} flex flex-col gap-6 p-6 sm:p-8`} style={CARD}>
+        <Steps current={2} />
+
+        <div className="flex flex-col items-center gap-1.5 text-center">
+          <span className="text-sm text-gray-400">You are sending</span>
+          <span className="font-display text-7xl leading-none text-white sm:text-[88px]">
             {formatUsdcPrecise(prepared.amount)}
           </span>
-          <span className="text-xs text-gray-400">USDC on Solana</span>
+          <span className="text-sm text-gray-400">USDC on Solana</span>
         </div>
 
-        <div className="flex flex-col gap-4 border-t border-white/10 pt-5">
-          <Row label="To"><span className="font-mono text-xs">{prepared.to_address}</span></Row>
-          <Row label="Network fee">Paid by Kinfi</Row>
-        </div>
+        <dl className="m-0 flex flex-col border-y border-white/[0.07]">
+          <Row label="To"><span className="font-mono text-[13px]">{prepared.to_address}</span></Row>
+          <Row label="Network fee">Paid by Kenfi</Row>
+        </dl>
 
-        <p className="rounded-xl p-3 text-xs leading-relaxed text-amber-200" style={{ backgroundColor: "#451a0366" }}>
-          Payments on Solana cannot be reversed. Check the address before you confirm.
+        <p
+          role="note"
+          className="flex gap-3 rounded-[14px] border p-3.5 text-sm leading-relaxed"
+          style={{ backgroundColor: "rgba(242,193,78,0.09)", borderColor: "rgba(242,193,78,0.28)", color: "#F3E3B0" }}
+        >
+          <span aria-hidden="true" style={{ color: "#F2C14E" }}>!</span>
+          <span>Payments on Solana cannot be reversed. Check the address before you confirm.</span>
         </p>
 
         <div className="flex flex-wrap gap-3">
-          <PrimaryButton onClick={() => void confirm()} disabled={signing}>
+          <PixelPromptButton
+            size="lg"
+            showSuccessState={false}
+            onClick={() => void confirm()}
+            disabled={signing}
+            className="flex-1"
+          >
             {signing ? "Waiting for confirmation..." : "Confirm and send"}
-          </PrimaryButton>
-          <SecondaryButton onClick={back} disabled={signing}>Back</SecondaryButton>
+          </PixelPromptButton>
+          <PixelPromptButton
+            size="lg"
+            effectOnly
+            showSuccessState={false}
+            onClick={back}
+            disabled={signing}
+            className="bg-[#1C1D21]/60"
+          >
+            Back
+          </PixelPromptButton>
         </div>
       </div>
     );
@@ -175,23 +290,31 @@ export default function SendFlow() {
   // ── Pending ─────────────────────────────────────────────────────────────
   if (state.step === "pending") {
     return (
-      <div className="rounded-2xl p-6 flex flex-col gap-5" style={CARD} aria-live="polite">
-        <div className="flex items-center gap-3">
-          <span className="h-3 w-3 animate-pulse rounded-full" style={{ backgroundColor: "#FFA15A" }} />
-          <h2 className="text-xl font-semibold text-white">Payment sent</h2>
+      <div className={`${SHELL} flex flex-col gap-5 p-6 sm:p-8`} style={CARD} aria-live="polite">
+        <Steps current={3} />
+        <div className="flex items-center gap-4">
+          <span className="relative flex h-14 w-14 shrink-0 items-center justify-center" aria-hidden="true">
+            <span className="anim-ring absolute inset-0 rounded-full border-2" style={{ borderColor: "#F2C14E" }} />
+            <span
+              className="relative flex h-14 w-14 items-center justify-center rounded-full border-2"
+              style={{ borderColor: "#F2C14E", backgroundColor: "rgba(242,193,78,0.14)", color: "#F2C14E" }}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7v5l3 2" />
+              </svg>
+            </span>
+          </span>
+          <h2 className="font-display text-4xl leading-tight text-white">Payment sent</h2>
         </div>
-        <p className="text-sm text-gray-300">
+        <p className="text-sm leading-relaxed text-gray-300">
           {formatUsdcPrecise(state.prepared.amount)} to {shortenAddress(state.prepared.to_address)} is waiting for
           Solana to confirm it. This usually takes a few seconds.
         </p>
         {state.note && <p className="text-sm text-amber-200">{state.note}</p>}
-        <a href={explorerTxUrl(state.signature)} target="_blank" rel="noopener noreferrer" className="text-sm text-gray-300 underline">
-          View on Solana Explorer
-        </a>
+        <ResultLinks signature={state.signature} />
         <div className="flex flex-wrap gap-3">
-          <Link href="/history" className="rounded-xl border border-white/15 px-6 py-3 text-sm font-semibold text-white">
-            View history
-          </Link>
+          <HistoryLink />
         </div>
       </div>
     );
@@ -200,24 +323,42 @@ export default function SendFlow() {
   // ── Confirmed ───────────────────────────────────────────────────────────
   if (state.step === "confirmed") {
     return (
-      <div className="rounded-2xl p-6 flex flex-col gap-5" style={CARD} aria-live="polite">
-        <div className="flex items-center gap-3">
-          <span className="flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold" style={{ backgroundColor: "#14532d", color: "#4ade80" }} aria-hidden="true">
-            ✓
+      <div className={`${SHELL} flex flex-col items-center gap-6 p-6 text-center sm:p-10`} style={CARD} aria-live="polite">
+        <span className="relative flex h-24 w-24 items-center justify-center" aria-hidden="true">
+          <span className="anim-ring absolute inset-0 rounded-full border-2" style={{ borderColor: "#5FD39A" }} />
+          <span
+            className="anim-pop relative flex h-24 w-24 items-center justify-center rounded-full border-2"
+            style={{ borderColor: "#5FD39A", backgroundColor: "rgba(95,211,154,0.14)" }}
+          >
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#6EE0A8" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+              <path className="anim-draw" d="M5 12.5l4.5 4.5L19 7.5" />
+            </svg>
           </span>
-          <h2 className="text-xl font-semibold text-white">Payment complete</h2>
+        </span>
+
+        <div className="flex flex-col items-center gap-2">
+          <h2 className="font-display text-5xl leading-tight text-white">Payment complete</h2>
+          <span className="font-display text-6xl leading-none text-white">
+            {formatUsdcPrecise(state.prepared.amount)}
+          </span>
+          <p className="text-[15px] text-gray-400">
+            Sent to {shortenAddress(state.prepared.to_address)}
+          </p>
+          <span
+            className="mt-1 rounded-full px-3 py-1 text-xs font-medium"
+            style={{ color: "#6EE0A8", backgroundColor: "rgba(95,211,154,0.12)" }}
+          >
+            Confirmed by Solana
+          </span>
         </div>
-        <p className="text-sm text-gray-300">
-          {formatUsdcPrecise(state.prepared.amount)} was sent to {shortenAddress(state.prepared.to_address)}.
-        </p>
-        <a href={explorerTxUrl(state.signature)} target="_blank" rel="noopener noreferrer" className="text-sm text-gray-300 underline">
-          View on Solana Explorer
-        </a>
-        <div className="flex flex-wrap gap-3">
-          <PrimaryButton onClick={startOver}>Send another</PrimaryButton>
-          <Link href="/history" className="rounded-xl border border-white/15 px-6 py-3 text-sm font-semibold text-white">
-            View history
-          </Link>
+
+        <ResultLinks signature={state.signature} />
+
+        <div className="flex flex-wrap justify-center gap-3">
+          <PixelPromptButton size="lg" showSuccessState={false} onClick={startOver}>
+            Send another
+          </PixelPromptButton>
+          <HistoryLink />
         </div>
       </div>
     );
@@ -225,19 +366,26 @@ export default function SendFlow() {
 
   // ── Failed ──────────────────────────────────────────────────────────────
   return (
-    <div className="rounded-2xl p-6 flex flex-col gap-5" style={CARD} role="alert">
-      <h2 className="text-xl font-semibold text-white">Payment not completed</h2>
-      <p className="text-sm text-red-300">{state.message}</p>
-      {state.signature && (
-        <a href={explorerTxUrl(state.signature)} target="_blank" rel="noopener noreferrer" className="text-sm text-gray-300 underline">
-          View on Solana Explorer
-        </a>
-      )}
+    <div className={`${SHELL} flex flex-col gap-5 p-6 sm:p-8`} style={CARD} role="alert">
+      <span
+        aria-hidden="true"
+        className="flex h-12 w-12 items-center justify-center rounded-full"
+        style={{ backgroundColor: "rgba(255,122,122,0.12)", color: "#FF8A8A" }}
+      >
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 8v5" />
+          <path d="M12 16.5v.01" />
+        </svg>
+      </span>
+      <h2 className="font-display text-4xl leading-tight text-white">Payment not completed</h2>
+      <p className="text-sm leading-relaxed text-red-300">{state.message}</p>
+      <ResultLinks signature={state.signature} />
       <div className="flex flex-wrap gap-3">
-        <PrimaryButton onClick={startOver}>Try again</PrimaryButton>
-        <Link href="/history" className="rounded-xl border border-white/15 px-6 py-3 text-sm font-semibold text-white">
-          View history
-        </Link>
+        <PixelPromptButton size="lg" showSuccessState={false} onClick={startOver}>
+          Try again
+        </PixelPromptButton>
+        <HistoryLink />
       </div>
     </div>
   );

@@ -23,7 +23,7 @@ const WALLET_MAX_RETRIES = 10;
  * quietly refreshes every few seconds while any payment is still pending so it
  * flips to Complete or Failed on its own.
  */
-export function useHistory() {
+export function useHistory(pageSize: number = PAGE_SIZE) {
   const { ready, authenticated, callBackend } = useAuth();
   const [state, setState] = useState<State>({ status: "loading" });
   const [refreshing, setRefreshing] = useState(false);
@@ -43,7 +43,7 @@ export function useHistory() {
 
     const load = async () => {
       try {
-        const page = await callBackend<HistoryPage>(`/wallet/transactions?limit=${PAGE_SIZE}`);
+        const page = await callBackend<HistoryPage>(`/wallet/transactions?limit=${pageSize}`);
         if (cancelled) return;
         setState((current) =>
           current.status === "ready"
@@ -71,7 +71,7 @@ export function useHistory() {
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, [ready, authenticated, callBackend, version]);
+  }, [ready, authenticated, callBackend, version, pageSize]);
 
   // Quiet refresh while something is pending.
   useEffect(() => {
@@ -91,7 +91,7 @@ export function useHistory() {
     setMoreError(null);
     try {
       const page = await callBackend<HistoryPage>(
-        `/wallet/transactions?limit=${PAGE_SIZE}&before=${encodeURIComponent(state.nextCursor)}`,
+        `/wallet/transactions?limit=${pageSize}&before=${encodeURIComponent(state.nextCursor)}`,
       );
       setState((current) =>
         current.status === "ready"
@@ -103,7 +103,7 @@ export function useHistory() {
     } finally {
       setLoadingMore(false);
     }
-  }, [state, callBackend, loadingMore]);
+  }, [state, callBackend, loadingMore, pageSize]);
 
   return { state, refreshing, loadingMore, moreError, refresh, loadMore };
 }

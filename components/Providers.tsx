@@ -8,7 +8,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   if (!appId) {
     return (
       <div className="flex min-h-screen items-center justify-center p-8 text-center text-sm text-gray-300">
-        Kinfi is not configured. Set NEXT_PUBLIC_PRIVY_APP_ID (see .env.example).
+        Kenfi is not configured. Set NEXT_PUBLIC_PRIVY_APP_ID (see .env.example).
       </div>
     );
   }

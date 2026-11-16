@@ -1,32 +1,25 @@
-const details = [
-  { label: "Network", value: "Solana" },
-  { label: "Asset", value: "USDC" },
-  { label: "Network fee", value: "Paid by Kinfi" },
-  { label: "Speed", value: "A few seconds" },
+const tips = [
+  "Sending limits apply to keep your money safe.",
+  "The other wallet must already hold USDC. If it does not, we tell you before anything is sent.",
+  "A payment is only marked complete after Solana confirms it.",
 ];
 
 export default function PaymentDetails() {
   return (
-    <div
-      className="rounded-2xl p-5 flex flex-col gap-5 self-start sticky top-6"
-      style={{ backgroundColor: "#1C1D21" }}
+    <aside
+      aria-label="Before you send"
+      className="anim-rise flex flex-col gap-4 self-start rounded-[22px] border border-white/[0.08] p-6 backdrop-blur-md lg:sticky lg:top-6"
+      style={{ backgroundColor: "rgba(28, 29, 33, 0.62)" }}
     >
-      <h2 className="text-base font-semibold text-white">Payment details</h2>
-
-      <div className="flex flex-col gap-4">
-        {details.map((d) => (
-          <div key={d.label} className="flex items-center justify-between">
-            <span className="text-sm text-gray-400">{d.label}</span>
-            <span className="text-sm font-semibold text-white">{d.value}</span>
-          </div>
+      <h2 className="font-display text-[26px] text-white">Before you send</h2>
+      <ul className="flex flex-col gap-3.5 text-sm leading-relaxed text-gray-300">
+        {tips.map((tip) => (
+          <li key={tip} className="flex gap-3">
+            <span aria-hidden="true" className="text-orange-400">●</span>
+            {tip}
+          </li>
         ))}
-      </div>
-
-      <div className="border-t border-white/10" />
-
-      <p className="text-xs text-gray-500 leading-relaxed">
-        Sending limits apply. You can only send to a wallet that has already received USDC.
-      </p>
-    </div>
+      </ul>
+    </aside>
   );
 }

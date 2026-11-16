@@ -1,7 +1,7 @@
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8787/api";
 
-/** An error from the Kinfi backend, or from reaching it. */
+/** An error from the Kenfi backend, or from reaching it. */
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -42,7 +42,7 @@ export async function apiRequest<T>(
       body: body === undefined ? undefined : JSON.stringify(body),
     });
   } catch {
-    throw new ApiError("Cannot reach Kinfi right now.", "NETWORK_ERROR");
+    throw new ApiError("Cannot reach Kenfi right now.", "NETWORK_ERROR");
   }
 
   let payload: Envelope<T> | null = null;

@@ -38,7 +38,7 @@ const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, 
  * The whole Send flow:
  *   prepare  -> the backend checks the payment and builds the transaction
  *   review   -> the user checks it
- *   confirm  -> Privy signs and sends it (Kinfi pays the network fee)
+ *   confirm  -> Privy signs and sends it (Kenfi pays the network fee)
  *   report   -> tell the backend the signature
  *   poll     -> wait until Solana confirms it, or says it failed
  *

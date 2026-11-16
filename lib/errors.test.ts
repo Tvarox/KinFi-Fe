@@ -14,8 +14,8 @@ describe("describeError", () => {
   });
 
   it("passes a network message through", () => {
-    expect(describeError(new ApiError("Cannot reach Kinfi right now.", "NETWORK_ERROR"))).toBe(
-      "Cannot reach Kinfi right now.",
+    expect(describeError(new ApiError("Cannot reach Kenfi right now.", "NETWORK_ERROR"))).toBe(
+      "Cannot reach Kenfi right now.",
     );
   });
 

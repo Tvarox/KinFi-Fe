@@ -43,9 +43,9 @@ const type = (label: RegExp | string, value: string) =>
   fireEvent.change(screen.getByLabelText(label), { target: { value } });
 
 describe("SendFlow: form", () => {
-  it("keeps Continue off until the address and amount are valid", () => {
+  it("keeps Review payment off until the address and amount are valid", () => {
     render(<SendFlow />);
-    const button = screen.getByRole("button", { name: "Continue" });
+    const button = screen.getByRole("button", { name: "Review payment" });
     expect(button).toBeDisabled();
 
     type("To", ADDRESS);
@@ -60,7 +60,7 @@ describe("SendFlow: form", () => {
     type("Amount", "1.1234567");
     expect(screen.getByText(/valid Solana address/)).toBeInTheDocument();
     expect(screen.getByText(/at most 6 decimal places/)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Review payment" })).toBeDisabled();
   });
 
   it("blocks an amount above the balance", () => {
@@ -68,13 +68,47 @@ describe("SendFlow: form", () => {
     type("To", ADDRESS);
     type("Amount", "1842.61");
     expect(screen.getByText("That is more than your balance.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Review payment" })).toBeDisabled();
   });
 
   it("fills the whole balance with Max", () => {
     render(<SendFlow />);
-    fireEvent.click(screen.getByRole("button", { name: /Max \$1,842\.60/ }));
+    expect(screen.getByText(/Available \$1,842\.60/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Max" }));
     expect(screen.getByLabelText("Amount")).toHaveValue("1842.6");
+  });
+
+  it("fills a quick amount, and marks the one picked", () => {
+    render(<SendFlow />);
+    const ten = screen.getByRole("button", { name: "$10" });
+    expect(ten).toHaveAttribute("aria-pressed", "false");
+    fireEvent.click(ten);
+    expect(screen.getByLabelText("Amount")).toHaveValue("10");
+    expect(screen.getByRole("button", { name: "$10" })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("turns off quick amounts that are more than the balance", () => {
+    balance = { state: { status: "ready", data: { usdc: "7500000" } }, refresh: refreshBalance }; // $7.50
+    render(<SendFlow />);
+    expect(screen.getByRole("button", { name: "$5" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "$10" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "$50" })).toBeDisabled();
+  });
+
+  it("does not offer Max before the balance is known", () => {
+    balance = { state: { status: "loading" }, refresh: refreshBalance };
+    render(<SendFlow />);
+    expect(screen.queryByRole("button", { name: "Max" })).not.toBeInTheDocument();
+    expect(screen.getByText("Checking your balance...")).toBeInTheDocument();
+  });
+
+  it("says an address looks valid only once it does", () => {
+    render(<SendFlow />);
+    expect(screen.queryByText(/Looks like a valid Solana address/)).not.toBeInTheDocument();
+    type("To", "not-an-address");
+    expect(screen.queryByText(/Looks like a valid Solana address/)).not.toBeInTheDocument();
+    type("To", ADDRESS);
+    expect(screen.getByText(/Looks like a valid Solana address/)).toBeInTheDocument();
   });
 
   it("only lets numbers and one decimal point into the amount", () => {
@@ -87,13 +121,13 @@ describe("SendFlow: form", () => {
     render(<SendFlow />);
     type("To", ADDRESS);
     type("Amount", "10.25");
-    fireEvent.submit(screen.getByRole("button", { name: "Continue" }).closest("form")!);
+    fireEvent.submit(screen.getByRole("button", { name: "Review payment" }).closest("form")!);
     expect(prepare).toHaveBeenCalledWith(ADDRESS, "10.25");
   });
 
   it("does not start a payment from an invalid form", () => {
     render(<SendFlow />);
-    fireEvent.submit(screen.getByRole("button", { name: "Continue" }).closest("form")!);
+    fireEvent.submit(screen.getByRole("button", { name: "Review payment" }).closest("form")!);
     expect(prepare).not.toHaveBeenCalled();
   });
 
@@ -118,7 +152,7 @@ describe("SendFlow: review", () => {
     expect(screen.getByText("$10.255")).toBeInTheDocument();
     expect(screen.getByText(ADDRESS)).toBeInTheDocument(); // the whole address, not a shortened one
     expect(screen.getByText(/cannot be reversed/)).toBeInTheDocument();
-    expect(screen.getByText("Paid by Kinfi")).toBeInTheDocument();
+    expect(screen.getByText("Paid by Kenfi")).toBeInTheDocument();
   });
 
   it("confirms or goes back", () => {
@@ -160,6 +194,7 @@ describe("SendFlow: result", () => {
     sendState = { step: "confirmed", prepared, signature: "SIG123" };
     render(<SendFlow />);
     expect(screen.getByRole("heading", { name: "Payment complete" })).toBeInTheDocument();
+    expect(screen.getByText("Confirmed by Solana")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Send another" }));
     expect(reset).toHaveBeenCalled();
     expect(refreshBalance).toHaveBeenCalled();

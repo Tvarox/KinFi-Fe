@@ -6,8 +6,8 @@ import Providers from "../components/Providers";
 import AuthGate from "../components/AuthGate";
 
 export const metadata: Metadata = {
-  title: "Kinfi",
-  description: "Your money, working smarter.",
+  title: "Kenfi",
+  description: "Hold, send and receive USDC on Solana.",
   icons: {
     icon: "/kinfi-mark-on-dark.svg",
     shortcut: "/kinfi-mark-on-dark.svg",
@@ -23,7 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <div className="relative z-10 flex h-screen min-h-[100dvh]">
             <Navbar />
-            <main className="flex-1 flex-col overflow-y-auto">
+            <main className="flex-1 flex-col overflow-y-auto pb-24 lg:pb-0">
               <AuthGate>{children}</AuthGate>
             </main>
           </div>

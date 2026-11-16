@@ -47,6 +47,56 @@ export function formatTimestamp(seconds: number | null): string {
   });
 }
 
+/** "10:42 AM". */
+export function formatClock(seconds: number | null): string {
+  if (seconds === null) return "";
+  return new Date(seconds * 1000).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+const startOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+
+/**
+ * "Today", "Yesterday", or a date such as "Nov 12" (with the year if it is not
+ * this year). Days are the viewer's own local days. No time stamp: "Earlier".
+ */
+export function dayLabel(seconds: number | null, now: number = Date.now()): string {
+  if (seconds === null) return "Earlier";
+
+  const when = new Date(seconds * 1000);
+  const today = startOfDay(new Date(now));
+  const day = startOfDay(when);
+  const dayMs = 24 * 60 * 60 * 1000;
+  const daysAgo = Math.round((today - day) / dayMs);
+
+  if (daysAgo <= 0) return "Today";
+  if (daysAgo === 1) return "Yesterday";
+
+  const sameYear = when.getFullYear() === new Date(now).getFullYear();
+  return when.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    ...(sameYear ? {} : { year: "numeric" }),
+  });
+}
+
+/** Items in the order given, split wherever the day changes. */
+export function groupByDay(
+  items: HistoryItem[],
+  now: number = Date.now(),
+): Array<{ label: string; items: HistoryItem[] }> {
+  const groups: Array<{ label: string; items: HistoryItem[] }> = [];
+  for (const item of items) {
+    const label = dayLabel(item.timestamp, now);
+    const last = groups[groups.length - 1];
+    if (last && last.label === label) last.items.push(item);
+    else groups.push({ label, items: [item] });
+  }
+  return groups;
+}
+
 /** Add a page to the list, without showing the same item twice. */
 export function mergePages(current: HistoryItem[], next: HistoryItem[]): HistoryItem[] {
   const seen = new Set(current.map((item) => item.id));

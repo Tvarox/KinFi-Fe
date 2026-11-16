@@ -26,7 +26,7 @@ export default function LoginButton() {
       label="Sign out"
       onClick={() => logout()}
       effectOnly
-      className="bg-[#1C1D21] font-medium"
+      className="w-full bg-[#1C1D21] font-medium"
     />
   );
 }

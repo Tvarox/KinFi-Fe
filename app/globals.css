@@ -1,10 +1,11 @@
 @import "tailwindcss";
+@import "@fontsource-variable/inter";
 
 :root {
   --color-primary: #131416;
   --color-secondary: #FFA15A;
   --color-tertiary: #1C1D21;
-  --font-body: 'Cinzel', serif;
+  --font-body: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-heading-family: 'Cormorant', serif;
 }
 
@@ -21,14 +22,6 @@
   src: url('/fonts/Cormorant/CormorantGaramond-Italic-VariableFont_wght.ttf') format('truetype');
   font-weight: 300 700;
   font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Cinzel';
-  src: url('/fonts/Cinzel/Cinzel-VariableFont_wght.ttf') format('truetype');
-  font-weight: 400 900;
-  font-style: normal;
   font-display: swap;
 }
 
@@ -65,6 +58,68 @@ div[style*="background-color: rgb(28, 29, 33)"] {
   border: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+}
+
+/* Amounts: Cormorant with lining, evenly spaced numerals so figures line up. */
+.font-display {
+  font-family: var(--font-heading-family), serif;
+  font-weight: 600;
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Entrance and state animations. All switch off for people who ask for less motion. */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes shimmer {
+  0% { background-position: -240px 0; }
+  100% { background-position: 240px 0; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes ring {
+  0% { transform: scale(0.6); opacity: 0.7; }
+  100% { transform: scale(1.9); opacity: 0; }
+}
+@keyframes draw {
+  from { stroke-dashoffset: 48; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.08); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.anim-rise { animation: rise 0.5s ease both; }
+.anim-pop { animation: pop 0.5s ease both; }
+.anim-ring { animation: ring 2.4s ease-out infinite; }
+.anim-draw { stroke-dasharray: 48; animation: draw 0.6s 0.25s ease both; }
+.anim-spin { animation: spin 0.9s linear infinite; }
+.skeleton {
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.05);
+  background-image: linear-gradient(90deg, rgba(255,255,255,0.05) 0, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.05) 100%);
+  background-size: 240px 100%;
+  background-repeat: no-repeat;
+  animation: shimmer 1.4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-rise, .anim-pop, .anim-ring, .anim-draw, .anim-spin, .skeleton {
+    animation: none;
+  }
+}
+
+/* Visible keyboard focus everywhere. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid #FFA15A;
+  outline-offset: 2px;
 }
 
 /* Custom range slider thumb */

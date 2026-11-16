@@ -81,7 +81,7 @@ export default function PayWith({ selected, setSelected }: Props) {
       </div>
 
       <p className="text-xs text-gray-600 mt-1 px-1">
-        Kinfi demo. No real money moves here: payments, transfers and deposits are simulated.
+        Kenfi demo. No real money moves here: payments, transfers and deposits are simulated.
       </p>
     </div>
   );

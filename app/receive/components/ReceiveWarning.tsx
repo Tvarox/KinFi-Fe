@@ -1,34 +1,52 @@
+"use client";
+
+import { useAccountSetupStatus } from "@/components/AccountSetup";
+
+const tips = [
+  { strong: "Only send USDC on the Solana network", rest: " to this address." },
+  { strong: "Other coins, or USDC on another network,", rest: " may be lost for good." },
+  { strong: "Incoming payments", rest: " appear in History once Solana confirms them." },
+];
+
 export default function ReceiveWarning() {
+  // Normally Kenfi sets up the USDC account itself, so a first deposit just
+  // works. Only if that could not be done do we warn about the sender's cost.
+  const setup = useAccountSetupStatus();
+
   return (
-    <div
-      className="rounded-2xl p-5 flex flex-col gap-4 self-start sticky top-6"
-      style={{ backgroundColor: "#1C1D21" }}
+    <aside
+      aria-label="Receive safely"
+      className="anim-rise flex flex-col gap-4 self-start rounded-[22px] border border-white/[0.08] p-6 backdrop-blur-md lg:sticky lg:top-6"
+      style={{ backgroundColor: "rgba(28, 29, 33, 0.62)" }}
     >
-      <h2 className="text-base font-semibold text-white">Before you share it</h2>
+      <h2 className="font-display text-[26px] text-white">Receive safely</h2>
 
-      <div
-        className="flex gap-3 rounded-xl p-4"
-        style={{ backgroundColor: "#451a0366", border: "1px solid #92400e55" }}
-      >
-        <svg className="shrink-0 mt-0.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-          <path d="M12 9v4M12 17h.01" />
-        </svg>
-        <p className="text-xs text-gray-300 leading-relaxed">
-          Only send <span className="font-bold text-white">USDC on the Solana network</span> to
-          this address. Other tokens, or another network, may be lost for good.
-        </p>
-      </div>
+      <ul className="flex flex-col gap-3.5 text-sm leading-relaxed text-gray-300">
+        {tips.map((tip) => (
+          <li key={tip.strong} className="flex gap-3">
+            <span aria-hidden="true" className="text-orange-400">●</span>
+            <span>
+              <span className="font-semibold text-white">{tip.strong}</span>
+              {tip.rest}
+            </span>
+          </li>
+        ))}
 
-      <div className="flex gap-3 rounded-xl p-4" style={{ backgroundColor: "#131416" }}>
-        <svg className="shrink-0 mt-0.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M12 16v-4M12 8h.01" />
-        </svg>
-        <p className="text-xs text-gray-400 leading-relaxed">
-          Payments on Solana are public. Anyone can see this address&apos;s activity.
-        </p>
-      </div>
-    </div>
+        {setup === "unavailable" && (
+          <li className="flex gap-3" data-testid="first-deposit-note">
+            <span aria-hidden="true" className="text-orange-400">●</span>
+            <span>
+              <span className="font-semibold text-white">First time receiving USDC?</span>
+              {" "}The sender&apos;s wallet pays a one-time account deposit of about 0.0015 SOL. If it holds
+              less SOL than that, the payment fails and the sender only loses a tiny network fee.
+            </span>
+          </li>
+        )}
+      </ul>
+
+      <p className="text-xs leading-relaxed text-gray-400">
+        Payments on Solana are public. Anyone can see this address&apos;s activity.
+      </p>
+    </aside>
   );
 }

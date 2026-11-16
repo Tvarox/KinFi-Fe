@@ -1,23 +1,30 @@
 "use client";
 
 import { useAuth } from "@/lib/use-auth";
+import PixelPromptButton from "../../components/PixelPromptButton";
 
 export default function SessionCard() {
   const { logout } = useAuth();
 
   return (
-    <div
-      className="rounded-2xl p-6 flex flex-col gap-4"
-      style={{ backgroundColor: "#1C1D21" }}
+    <section
+      aria-label="Session"
+      className="anim-rise flex flex-wrap items-center justify-between gap-4 rounded-[22px] border border-white/[0.08] p-6 backdrop-blur-md"
+      style={{ backgroundColor: "rgba(28, 29, 33, 0.62)" }}
     >
-      <h2 className="text-2xl font-semibold text-white tracking-normal">Session</h2>
-      <button
-        type="button"
+      <div className="flex flex-col gap-1">
+        <h2 className="font-display text-[26px] text-white">Session</h2>
+        <span className="text-sm text-gray-400">Sign out of Kenfi on this device.</span>
+      </div>
+      <PixelPromptButton
+        size="lg"
+        effectOnly
+        showSuccessState={false}
         onClick={() => void logout()}
-        className="self-start rounded-xl border border-white/15 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:border-white/30"
+        className="bg-[#1C1D21]/60"
       >
         Sign out
-      </button>
-    </div>
+      </PixelPromptButton>
+    </section>
   );
 }
