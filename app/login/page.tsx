@@ -60,7 +60,7 @@ export default function LoginPage() {
               <path d="M10 17l5-5-5-5" />
               <path d="M15 12H3" />
             </svg>
-            Continue with email or Google
+            Continue with email
           </span>
         </PixelPromptButton>
 

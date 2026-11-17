@@ -17,7 +17,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <PrivyProvider
       appId={appId}
       config={{
-        loginMethods: ['email', 'google'],
+        // Email one-time code only. This sets what the login modal offers;
+        // keep Google disabled in the Privy dashboard as well.
+        loginMethods: ['email'],
         appearance: {
           theme: 'dark',
         },
