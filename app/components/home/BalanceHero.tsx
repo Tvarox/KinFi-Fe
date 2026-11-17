@@ -28,7 +28,8 @@ function updatedText(iso: string): string {
 
 function Actions() {
   return (
-    <div className="flex w-40 flex-col items-stretch gap-3 lg:items-end">
+    // Side by side on phones/tablets; stacked column beside the balance on desktop.
+    <div className="grid w-full grid-cols-2 gap-3 lg:flex lg:w-40 lg:flex-col lg:items-end">
       <PixelPromptButton
         label="Send"
         href="/send"
