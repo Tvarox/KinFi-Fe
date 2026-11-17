@@ -58,8 +58,10 @@ function PixelPromptButton({
   const [isHovered, setIsHovered] = useState(false);
   const [twinklePixels, setTwinklePixels] = useState<Set<number>>(new Set());
   const [hoverPixels, setHoverPixels] = useState<Map<number, number>>(new Map());
+  const [ripples, setRipples] = useState<Array<{ id: number; x: number; y: number }>>([]);
   const [grid, setGrid] = useState({ columns: DEFAULT_COLUMNS, rows: DEFAULT_ROWS });
   const pixelsRef = useRef<HTMLDivElement>(null);
+  const rippleIdRef = useRef(0);
 
   // Fit the dot grid to the button, so wide buttons are covered end to end.
   useEffect(() => {
@@ -103,10 +105,27 @@ function PixelPromptButton({
     [columns, rows, disabled],
   );
 
-  const handleClick = () => {
+  const handleClick = (e?: React.MouseEvent) => {
     if (disabled) return;
     setIsPressed(true);
     if (showSuccessState) setHasCopied(true);
+
+    // Create ripple at click position
+    if (e) {
+      const rect = pixelsRef.current?.getBoundingClientRect();
+      if (rect) {
+        const id = rippleIdRef.current++;
+        setRipples((prev) => [
+          ...prev,
+          { id, x: e.clientX - rect.left, y: e.clientY - rect.top },
+        ]);
+        // Remove ripple after animation completes
+        setTimeout(() => {
+          setRipples((prev) => prev.filter((r) => r.id !== id));
+        }, 600);
+      }
+    }
+
     onClick?.();
 
     // Reset press state after the ripple.
@@ -212,6 +231,25 @@ function PixelPromptButton({
         {pixels}
       </div>
 
+      {/* Ripple effect */}
+      {ripples.map((ripple) => (
+        <div
+          key={ripple.id}
+          className="absolute pointer-events-none"
+          style={{
+            left: ripple.x,
+            top: ripple.y,
+            width: 4,
+            height: 4,
+            borderRadius: "50%",
+            backgroundColor: hasCopied ? "#22c55e" : "#FFA15A",
+            boxShadow: `0 0 16px ${hasCopied ? "rgba(34, 197, 94, 0.6)" : "rgba(255, 161, 85, 0.6)"}`,
+            transform: "translate(-50%, -50%) scale(0)",
+            animation: "ripple 0.6s ease-out forwards",
+          }}
+        />
+      ))}
+
       {/* Button content */}
       <span
         className={`relative z-10 ${look.text}`}
@@ -220,7 +258,7 @@ function PixelPromptButton({
           fontFamily: "'Cinzel', serif",
         }}
       >
-        {children ?? (hasCopied ? "✅ Copied" : label)}
+        {children ?? (hasCopied ? "Copied" : label)}
       </span>
     </>
   );

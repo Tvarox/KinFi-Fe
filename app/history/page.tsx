@@ -8,8 +8,8 @@ export default function HistoryPage() {
     >
       <div className="mx-auto flex max-w-4xl flex-col gap-6">
         <header className="flex flex-col gap-1">
-          <h1 className="font-cinzel text-4xl text-white sm:text-[44px]">History</h1>
-          <p className="font-cormorant text-[19px] text-gray-400">
+          <h1 className="font-cinzel text-4xl font-medium text-white sm:text-[44px]">History</h1>
+          <p className="font-cormorant text-[19px] text-white">
             Everything that moved in or out of your wallet, read from Solana. A payment shows as complete only
             after Solana confirms it.
           </p>

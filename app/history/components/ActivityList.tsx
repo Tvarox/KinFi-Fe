@@ -80,7 +80,7 @@ export default function ActivityList() {
                 role="tab"
                 aria-selected={active}
                 onClick={() => setFilter(tab.id)}
-                className={`rounded-[9px] px-[18px] py-2 text-sm font-medium transition-colors ${
+                className={`rounded-[9px] px-[18px] py-2 text-base font-medium transition-colors ${
                   active ? "bg-orange-400/15 text-orange-400" : "text-gray-400 hover:text-white"
                 }`}
               >

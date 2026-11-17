@@ -10,8 +10,8 @@ export default function SettingsPage() {
     >
       <div className="mx-auto flex max-w-3xl flex-col gap-4">
         <header className="flex flex-col gap-1">
-          <h1 className="font-cinzel text-4xl text-white sm:text-[44px]">Settings</h1>
-          <p className="font-cormorant text-[19px] text-gray-400">Your account and wallet details.</p>
+          <h1 className="font-cinzel text-4xl font-medium text-white sm:text-[44px]">Settings</h1>
+          <p className="font-cormorant text-[19px] text-white">Your account and wallet details.</p>
         </header>
 
         <div className="flex flex-col gap-3">

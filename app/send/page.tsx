@@ -9,8 +9,8 @@ export default function SendPage() {
     >
       <div className="mx-auto flex max-w-5xl flex-col gap-6 max-sm:gap-3">
         <header className="flex flex-col gap-1">
-          <h1 className="font-cinzel text-4xl text-white max-sm:text-3xl sm:text-[44px]">Send</h1>
-          <p className="font-cormorant text-[19px] text-gray-400 max-sm:text-base">
+          <h1 className="font-cinzel text-4xl font-medium text-white max-sm:text-3xl sm:text-[44px]">Send</h1>
+          <p className="font-cormorant text-[19px] text-white max-sm:text-base">
             Send USDC to any Solana wallet. You check everything before it goes.
           </p>
         </header>

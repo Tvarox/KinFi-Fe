@@ -4,6 +4,7 @@ import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { useWalletAddress } from "@/lib/use-backend-query";
 import PixelPromptButton from "../../components/PixelPromptButton";
+import { shortenAddress } from "@/lib/format";
 
 export default function ReceivePanel() {
   const { state, refresh } = useWalletAddress();
@@ -21,7 +22,6 @@ export default function ReceivePanel() {
     if (!address) return;
     try {
       await navigator.clipboard.writeText(address);
-      flash("Copied!");
     } catch {
       flash("Copy failed. Select the address and copy it.");
     }
@@ -67,13 +67,13 @@ export default function ReceivePanel() {
 
       <div className="flex max-w-md flex-col items-center gap-2 text-center">
         <p className="text-lg text-gray-400">Your Solana address</p>
-        <p className="break-all font-mono text-lg leading-relaxed text-white">{address ?? "Unavailable"}</p>
+        <p className="break-all font-mono text-lg leading-relaxed text-white">{address ? shortenAddress(address, 6, 4) : "Unavailable"}</p>
       </div>
 
       <div className="flex flex-wrap items-center justify-center gap-3">
         <PixelPromptButton
           size="md"
-          showSuccessState={false}
+          showSuccessState
           disabled={!address}
           onClick={() => void handleCopy()}
           className="px-0 py-2.5"

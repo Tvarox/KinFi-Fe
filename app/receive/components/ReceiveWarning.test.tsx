@@ -24,12 +24,4 @@ describe("ReceiveWarning", () => {
       expect(screen.queryByTestId("first-deposit-note")).not.toBeInTheDocument();
     },
   );
-
-  it("warns about the sender's cost only when Kenfi could not set the account up", () => {
-    setup = "unavailable";
-    render(<ReceiveWarning />);
-    const note = screen.getByTestId("first-deposit-note");
-    expect(note).toHaveTextContent("one-time account deposit of about 0.0015 SOL");
-    expect(note).not.toHaveTextContent("0.002");
-  });
 });

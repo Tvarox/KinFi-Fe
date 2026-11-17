@@ -1,25 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useWalletAddress } from "@/lib/use-backend-query";
 import LoadingText from "../../components/LoadingText";
 
 export default function WalletCard() {
   const { state, refresh } = useWalletAddress();
   const [copied, setCopied] = useState(false);
+  const [ripples, setRipples] = useState<Array<{ id: number; x: number; y: number }>>([]);
+  const rippleIdRef = useRef(0);
 
   const address = state.status === "ready" ? state.data.address : null;
 
-  const copy = async () => {
-    if (!address) return;
-    try {
-      await navigator.clipboard.writeText(address);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // The address is on screen and can be selected and copied by hand.
-    }
-  };
+  const copy = useCallback(
+    (e?: React.MouseEvent) => {
+      if (!address) return;
+      try {
+        navigator.clipboard.writeText(address);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+
+        // Create ripple at click position
+        if (e) {
+          const rect = e.currentTarget.getBoundingClientRect();
+          const id = rippleIdRef.current++;
+          setRipples((prev) => [
+            ...prev,
+            { id, x: e.clientX - rect.left, y: e.clientY - rect.top },
+          ]);
+          setTimeout(() => {
+            setRipples((prev) => prev.filter((r) => r.id !== id));
+          }, 600);
+        }
+      } catch {
+        // The address is on screen and can be selected and copied by hand.
+      }
+    },
+    [address],
+  );
 
   const row = "flex items-center justify-between gap-6 border-t border-white/[0.07] py-3";
 
@@ -33,22 +51,39 @@ export default function WalletCard() {
 
       <dl className="m-0 flex flex-col">
         <div className={row}>
-          <dt className="text-lg text-gray-400">Network</dt>
+          <dt className="text-lg text-white">Network</dt>
           <dd className="m-0 text-lg font-medium text-white">Solana · USDC</dd>
         </div>
 
         <div className={row}>
-          <dt className="shrink-0 text-lg text-gray-400">Address</dt>
+          <dt className="shrink-0 text-lg text-white">Address</dt>
           <dd className="m-0 flex min-w-0 items-center gap-3">
             {state.status === "ready" ? (
               <>
-                <span className="break-all text-right font-mono text-lg text-gray-200">{state.data.address}</span>
                 <button
                   type="button"
-                  onClick={() => void copy()}
+                  onClick={copy}
                   aria-live="polite"
-                  className="shrink-0 rounded-[10px] border border-white/15 px-3.5 py-2 text-base font-medium text-white transition-colors hover:border-white/40"
+                  className="min-w-[80px] text-center shrink-0 rounded-[10px] border border-white/15 px-3.5 py-2 text-base font-medium text-white transition-colors hover:border-white/40 relative overflow-hidden"
+                  style={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
                 >
+                  {ripples.map((ripple) => (
+                    <div
+                      key={ripple.id}
+                      className="absolute pointer-events-none"
+                      style={{
+                        left: ripple.x,
+                        top: ripple.y,
+                        width: 4,
+                        height: 4,
+                        borderRadius: "50%",
+                        backgroundColor: copied ? "#22c55e" : "#FFA15A",
+                        boxShadow: `0 0 16px ${copied ? "rgba(34, 197, 94, 0.6)" : "rgba(255, 161, 85, 0.6)"}`,
+                        transform: "translate(-50%, -50%) scale(0)",
+                        animation: "ripple 0.6s ease-out forwards",
+                      }}
+                    />
+                  ))}
                   {copied ? "Copied" : "Copy"}
                 </button>
               </>
@@ -69,7 +104,7 @@ export default function WalletCard() {
         </div>
 
         <div className={`${row} border-b`}>
-          <dt className="text-lg text-gray-400">Seed phrase</dt>
+          <dt className="text-lg text-white">Seed phrase</dt>
           <dd className="m-0 text-lg font-medium text-white">None to store</dd>
         </div>
       </dl>

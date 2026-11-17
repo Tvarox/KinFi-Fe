@@ -24,8 +24,8 @@ export default function HomePage() {
       <div className="mx-auto flex max-w-6xl flex-col gap-3">
         <header>
           <div className="flex flex-col gap-1">
-            <h1 className="font-cinzel text-4xl text-white sm:text-[44px]">{title}</h1>
-            <p className="font-cormorant text-[20px] text-gray-400">Here is your money today.</p>
+            <h1 className="font-cinzel text-4xl font-medium text-white sm:text-[44px]">{title}</h1>
+            <p className="font-cormorant text-[20px] text-white">Here is your money today.</p>
           </div>
         </header>
 

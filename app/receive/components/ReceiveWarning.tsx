@@ -32,16 +32,6 @@ export default function ReceiveWarning() {
           </li>
         ))}
 
-        {setup === "unavailable" && (
-          <li className="flex gap-3" data-testid="first-deposit-note">
-            <span aria-hidden="true" className="text-orange-400">●</span>
-            <span>
-              <span className="font-semibold text-white">First time receiving USDC?</span>
-              {" "}The sender&apos;s wallet pays a one-time account deposit of about 0.0015 SOL. If it holds
-              less SOL than that, the payment fails and the sender only loses a tiny network fee.
-            </span>
-          </li>
-        )}
       </ul>
 
       <p className="text-[15px] leading-relaxed text-gray-400">

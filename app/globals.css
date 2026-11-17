@@ -46,6 +46,12 @@ body {
   background-color: #131416;
   color: #ffffff;
   font-family: var(--font-body) !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body * {
@@ -114,6 +120,10 @@ body h6 {
 @keyframes ring {
   0% { transform: scale(0.6); opacity: 0.7; }
   100% { transform: scale(1.9); opacity: 0; }
+}
+@keyframes ripple {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0.7; }
+  100% { transform: translate(-50%, -50%) scale(20); opacity: 0; }
 }
 @keyframes draw {
   from { stroke-dashoffset: 48; }
