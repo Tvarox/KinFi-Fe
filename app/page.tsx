@@ -1,50 +1,40 @@
-import BalanceHero from "./components/home/BalanceHero";
-import BalanceChart from "./components/home/BalanceChart";
-import MetricCard from "./components/home/MetricCard";
-import RecentActivityCard from "./components/home/RecentActivityCard";
-import AutoEarnCard from "./components/home/AutoEarnCard";
+'use client';
+
+import { usePrivy } from '@privy-io/react-auth';
+import BalanceHero from './components/home/BalanceHero';
+import RecentActivity from './components/home/RecentActivity';
+import WalletSummary from './components/home/WalletSummary';
+import { greeting } from '@/lib/greeting';
+import { useUsdcBalance } from '@/lib/use-backend-query';
 
 export default function HomePage() {
+  const { state, refreshing, refresh } = useUsdcBalance();
+  const { user } = usePrivy();
+
+  const title = greeting({
+    name: user?.google?.name,
+    email: user?.email?.address ?? user?.google?.email,
+  });
+
   return (
-    <div className="flex-1 px-8 py-8" style={{ backgroundColor: "#131416" }}>
-      <div className="max-w-5xl mx-auto flex flex-col gap-6">
-        
-        {/* Section 1: Hero area (left populated, right left empty as requested) */}
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_360px] gap-6 items-center">
-          <BalanceHero />
-          {/* Empty space on the right for card */}
-          <div className="hidden md:block" />
+    <div
+      className="flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-12 lg:py-10"
+      style={{ backgroundColor: 'transparent', position: 'relative', zIndex: 10 }}
+    >
+      <div className="mx-auto flex max-w-6xl flex-col gap-6">
+        <header>
+          <div className="flex flex-col gap-1">
+            <h1 className="font-cinzel text-4xl text-white sm:text-[44px]">{title}</h1>
+            <p className="font-cormorant text-[20px] text-gray-400">Here is your money today.</p>
+          </div>
+        </header>
+
+        <BalanceHero state={state} refreshing={refreshing} onRefresh={refresh} />
+
+        <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <RecentActivity />
+          <WalletSummary address={state.status === 'ready' ? state.data.address : null} />
         </div>
-
-        {/* Section 2: Balance over time chart */}
-        <BalanceChart />
-
-        {/* Section 3: 3 Metric cards using the reusable component */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <MetricCard
-            label="Spendable"
-            value="$1,474.08"
-            subtitle="Ready to send"
-          />
-          <MetricCard
-            label="Earning"
-            value="$368.52"
-            subtitle="20% of your balance"
-          />
-          <MetricCard
-            label="Earned"
-            value="+$12.47"
-            subtitle="Since you started"
-            isGreen
-          />
-        </div>
-
-        {/* Section 4: Recent Activity & Auto-earn */}
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-5 items-start">
-          <RecentActivityCard />
-          <AutoEarnCard />
-        </div>
-
       </div>
     </div>
   );

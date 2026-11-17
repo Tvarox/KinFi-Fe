@@ -1,20 +1,20 @@
-import StatsSummary  from "./components/StatsSummary";
-import ActivityTable from "./components/ActivityTable";
+import ActivityList from "./components/ActivityList";
 
 export default function HistoryPage() {
   return (
-    <div className="flex-1 px-8 py-8" style={{ backgroundColor: "#131416" }}>
-      <div className="max-w-5xl mx-auto flex flex-col gap-6">
-        {/* Page Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">History</h1>
-          <p className="text-sm text-gray-400 mt-1.5">
-            Everything that moved in Main account.
+    <div
+      className="flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-12 lg:py-10"
+      style={{ backgroundColor: "transparent", position: "relative", zIndex: 10 }}
+    >
+      <div className="mx-auto flex max-w-4xl flex-col gap-6">
+        <header className="flex flex-col gap-1">
+          <h1 className="font-cinzel text-4xl text-white sm:text-[44px]">History</h1>
+          <p className="font-cormorant text-[19px] text-gray-400">
+            Everything that moved in or out of your wallet, read from Solana. A payment shows as complete only
+            after Solana confirms it.
           </p>
-        </div>
-
-        <StatsSummary />
-        <ActivityTable />
+        </header>
+        <ActivityList />
       </div>
     </div>
   );

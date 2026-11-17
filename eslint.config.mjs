@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Parked screens, see app/_future/README.md
+    "app/_future/**",
   ]),
 ]);
 
