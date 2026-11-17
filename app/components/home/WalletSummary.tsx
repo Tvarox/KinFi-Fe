@@ -22,7 +22,7 @@ export default function WalletSummary({ address }: { address: string | null }) {
   };
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-2">
       <section aria-label="Your wallet" className={`${SHELL} flex flex-col gap-4`} style={CARD}>
         <h2 className="font-display text-[26px] text-white">Your wallet</h2>
         <div

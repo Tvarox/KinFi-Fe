@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useWalletAddress } from "@/lib/use-backend-query";
+import LoadingText from "../../components/LoadingText";
 
 export default function WalletCard() {
   const { state, refresh } = useWalletAddress();
@@ -59,9 +60,10 @@ export default function WalletCard() {
                 </button>
               </span>
             ) : (
-              <span className="text-lg text-gray-400">
-                {state.status === "creating-wallet" ? "Setting up your wallet..." : "Loading..."}
-              </span>
+              <LoadingText
+                className="text-lg text-gray-400"
+                text={state.status === "creating-wallet" ? "Setting up your wallet" : "Loading"}
+              />
             )}
           </dd>
         </div>

@@ -74,7 +74,7 @@ function Underline({ id, inset }: { id: string; inset: string }) {
     <motion.span
       layoutId={id}
       className={`absolute bottom-1 h-px rounded-full bg-orange-400 ${inset}`}
-      style={{ boxShadow: "0 0 8px 2px rgba(255, 161, 90, 0.65)" }}
+      style={{ boxShadow: "none" }}
       transition={{ type: "spring", stiffness: 380, damping: 30 }}
     />
   );

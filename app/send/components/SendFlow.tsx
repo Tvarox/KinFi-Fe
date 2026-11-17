@@ -132,17 +132,17 @@ export default function SendFlow() {
     const busy = state.step === "preparing";
     return (
       <form
-        className={`${SHELL} font-cormorant flex flex-col gap-5 p-4 sm:p-6`}
+        className={`${SHELL} font-cormorant flex flex-col gap-5 p-4 max-sm:gap-3 max-sm:p-3 sm:p-6`}
         style={CARD}
         onSubmit={(event) => {
           event.preventDefault();
           if (check.canSubmit && !busy) void prepare(to, amount.trim());
         }}
       >
-        <div className="flex flex-col items-center gap-3.5 text-center">
+        <div className="flex flex-col items-center gap-3.5 text-center max-sm:gap-2">
           <label htmlFor="send-amount" className="text-sm text-gray-400">Amount</label>
           <div className="flex items-center justify-center">
-            <span aria-hidden="true" className="-mr-4 font-cinzel text-7xl leading-none text-gray-400 sm:text-[104px]">$</span>
+            <span aria-hidden="true" className="-mr-4 font-cinzel text-7xl leading-none text-gray-400 max-sm:-mr-3 max-sm:text-6xl sm:text-[104px]">$</span>
             <input
               id="send-amount"
               type="text"
@@ -166,12 +166,12 @@ export default function SendFlow() {
               autoComplete="off"
               disabled={busy}
               aria-invalid={check.amountError !== null}
-              className="send-amount-input flex-none font-cinzel bg-transparent text-center text-7xl leading-none text-white outline-none placeholder-gray-600 sm:text-[104px]"
+              className="send-amount-input flex-none font-cinzel bg-transparent text-center text-7xl leading-none text-white outline-none placeholder-gray-600 max-sm:text-6xl sm:text-[104px]"
               style={{ width: "5em", maxWidth: "5em" }}
             />
           </div>
 
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className="flex flex-wrap justify-center gap-2 max-sm:gap-1.5">
             {QUICK_AMOUNTS.map((value) => {
               const base = amountToBaseUnits(String(value));
               const tooMuch = available !== null && base !== null && BigInt(base) > BigInt(available);
@@ -183,7 +183,7 @@ export default function SendFlow() {
                   disabled={busy || tooMuch}
                   onClick={() => animateAmount(value)}
                   aria-pressed={selected}
-                  className={`rounded-full border px-[18px] py-2 text-base font-medium transition-colors disabled:opacity-40 ${
+                  className={`rounded-full border px-[18px] py-2 text-base font-medium transition-colors disabled:opacity-40 max-sm:px-3 max-sm:py-1.5 max-sm:text-sm ${
                     selected
                       ? "border-orange-400/60 bg-orange-400/10 text-orange-400"
                       : "border-white/15 text-white hover:border-orange-400/60"
@@ -196,7 +196,7 @@ export default function SendFlow() {
             })}
           </div>
 
-          <p className="flex min-h-7 items-center gap-2 text-lg text-gray-400">
+          <p className="flex min-h-7 items-center gap-2 text-lg text-gray-400 max-sm:text-base">
             <span
               key={check.amountError ?? (available !== null ? "available" : "checking")}
               className={check.amountError ? "animate-status-message text-red-400" : "animate-status-message"}
@@ -222,8 +222,8 @@ export default function SendFlow() {
           </p>
         </div>
 
-        <div className="flex flex-col gap-2 border-t border-white/[0.07] pt-4">
-          <label htmlFor="send-to" className="text-lg font-medium text-white">To</label>
+        <div className="flex flex-col gap-2 border-t border-white/[0.07] pt-4 max-sm:gap-1.5 max-sm:pt-3">
+          <label htmlFor="send-to" className="text-lg font-medium text-white max-sm:text-base">To</label>
           <input
             id="send-to"
             type="text"
@@ -234,7 +234,7 @@ export default function SendFlow() {
             spellCheck={false}
             disabled={busy}
             aria-invalid={check.addressError !== null}
-            className="w-full rounded-[14px] border border-white/10 px-[18px] py-4 font-mono text-base text-white placeholder-gray-500 outline-none focus:border-orange-400/60"
+            className="w-full rounded-[14px] border border-white/10 px-[18px] py-4 font-mono text-base text-white placeholder-gray-500 outline-none focus:border-orange-400/60 max-sm:py-3 max-sm:text-sm"
             style={FIELD}
           />
           {check.addressError && <p className="text-[13px] text-red-400">{check.addressError}</p>}
@@ -248,7 +248,7 @@ export default function SendFlow() {
           )}
         </div>
 
-        <div className="flex items-center justify-between text-lg text-gray-400">
+        <div className="flex items-center justify-between text-lg text-gray-400 max-sm:text-base">
           <span>Network fee</span>
           <span className="text-white">Paid by Kenfi</span>
         </div>
@@ -264,7 +264,7 @@ export default function SendFlow() {
           size="lg"
           showSuccessState={false}
           disabled={!check.canSubmit || busy}
-          className="w-full py-2.5"
+          className="w-full py-2.5 max-sm:py-2"
         >
           {busy ? "Checking..." : "Review payment"}
         </PixelPromptButton>
