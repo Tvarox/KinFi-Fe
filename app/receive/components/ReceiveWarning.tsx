@@ -16,12 +16,12 @@ export default function ReceiveWarning() {
   return (
     <aside
       aria-label="Receive safely"
-      className="anim-rise flex flex-col gap-4 self-start rounded-[22px] border border-white/[0.08] p-6 backdrop-blur-md lg:sticky lg:top-6"
-      style={{ backgroundColor: "rgba(28, 29, 33, 0.62)" }}
+      className="anim-rise font-cormorant flex flex-col gap-4 self-start rounded-[22px] border border-white/[0.08] p-5 backdrop-blur-md lg:sticky lg:top-6"
+      style={{ backgroundColor: "rgba(28, 29, 33, 0.48)" }}
     >
-      <h2 className="font-display text-[26px] text-white">Receive safely</h2>
+      <h2 className="font-cinzel text-[24px] text-white">Receive safely</h2>
 
-      <ul className="flex flex-col gap-3.5 text-sm leading-relaxed text-gray-300">
+      <ul className="flex flex-col gap-3.5 text-[17px] leading-relaxed text-gray-300">
         {tips.map((tip) => (
           <li key={tip.strong} className="flex gap-3">
             <span aria-hidden="true" className="text-orange-400">●</span>
@@ -44,7 +44,7 @@ export default function ReceiveWarning() {
         )}
       </ul>
 
-      <p className="text-xs leading-relaxed text-gray-400">
+      <p className="text-[15px] leading-relaxed text-gray-400">
         Payments on Solana are public. Anyone can see this address&apos;s activity.
       </p>
     </aside>

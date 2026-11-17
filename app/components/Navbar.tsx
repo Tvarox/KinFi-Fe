@@ -109,7 +109,7 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 aria-current={isActive ? "page" : undefined}
-                className={`relative flex items-center gap-3 rounded-xl px-3.5 py-3 text-[15px] font-medium transition-colors duration-200 ${
+                className={`font-cinzel relative flex items-center gap-3 rounded-xl px-3.5 py-3 text-[15px] font-medium transition-colors duration-200 ${
                   isActive ? "text-orange-400" : "text-gray-400 hover:text-white"
                 }`}
               >
@@ -155,7 +155,7 @@ export default function Navbar() {
               key={link.href}
               href={link.href}
               aria-current={isActive ? "page" : undefined}
-              className={`relative flex min-h-12 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors ${
+              className={`font-cinzel relative flex min-h-12 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors ${
                 isActive ? "text-orange-400" : "text-gray-400"
               }`}
             >

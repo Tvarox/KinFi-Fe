@@ -11,7 +11,7 @@ type Particle = {
   opacity: number;
 };
 
-const PARTICLE_COUNT = 120;
+const PARTICLE_COUNT = 140;
 const LINK_DISTANCE = 120;
 const ATTRACT_DISTANCE = 200;
 const ATTRACT_STRENGTH = 0.18;

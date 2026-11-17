@@ -22,18 +22,11 @@ export default function HomePage() {
       style={{ backgroundColor: 'transparent', position: 'relative', zIndex: 10 }}
     >
       <div className="mx-auto flex max-w-6xl flex-col gap-6">
-        <header className="flex flex-wrap items-center justify-between gap-4">
+        <header>
           <div className="flex flex-col gap-1">
-            <h1 className="font-display text-4xl text-white sm:text-[44px]">{title}</h1>
-            <p className="text-[15px] text-gray-400">Here is your money today.</p>
+            <h1 className="font-cinzel text-4xl text-white sm:text-[44px]">{title}</h1>
+            <p className="font-cormorant text-[20px] text-gray-400">Here is your money today.</p>
           </div>
-          <span
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3.5 py-1.5 text-[13px] text-gray-400"
-            style={{ backgroundColor: 'rgba(28, 29, 33, 0.5)' }}
-          >
-            <span aria-hidden="true" className="h-2 w-2 rounded-full" style={{ backgroundColor: '#5FD39A' }} />
-            Solana
-          </span>
         </header>
 
         <BalanceHero state={state} refreshing={refreshing} onRefresh={refresh} />

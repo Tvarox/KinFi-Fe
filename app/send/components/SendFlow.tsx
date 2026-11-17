@@ -1,14 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { formatUsdc, formatUsdcPrecise, shortenAddress } from "@/lib/format";
 import { amountToBaseUnits, baseUnitsToAmountInput, checkSendInput, explorerTxUrl } from "@/lib/send";
 import { useSend } from "@/lib/use-send";
 import { useUsdcBalance } from "@/lib/use-backend-query";
+import LoadingText from "../../components/LoadingText";
 import PixelPromptButton from "../../components/PixelPromptButton";
 
-const CARD = { backgroundColor: "rgba(28, 29, 33, 0.62)" };
+const CARD = { backgroundColor: "rgba(28, 29, 33, 0.48)" };
 const FIELD = { backgroundColor: "rgba(19, 20, 22, 0.7)" };
 const SHELL = "anim-rise rounded-[22px] border border-white/[0.08] backdrop-blur-md";
 const QUICK_AMOUNTS = [5, 10, 25, 50];
@@ -88,6 +89,7 @@ export default function SendFlow() {
   const balance = useUsdcBalance();
   const [to, setTo] = useState("");
   const [amount, setAmount] = useState("");
+  const animationFrame = useRef<number | null>(null);
 
   const available = balance.state.status === "ready" ? balance.state.data.usdc : null;
   const check = checkSendInput({ to, amount, available });
@@ -100,12 +102,37 @@ export default function SendFlow() {
     balance.refresh();
   };
 
+  useEffect(() => {
+    return () => {
+      if (animationFrame.current !== null) cancelAnimationFrame(animationFrame.current);
+    };
+  }, []);
+
+  const animateAmount = (value: number) => {
+    if (animationFrame.current !== null) cancelAnimationFrame(animationFrame.current);
+
+    const startedAt = Date.now();
+    const duration = 500;
+    const update = () => {
+      const progress = Math.min((Date.now() - startedAt) / duration, 1);
+      const eased = 1 - (1 - progress) ** 3;
+      setAmount((value * eased).toFixed(2));
+      if (progress < 1) {
+        animationFrame.current = requestAnimationFrame(update);
+      } else {
+        animationFrame.current = null;
+        setAmount(String(value));
+      }
+    };
+    animationFrame.current = requestAnimationFrame(update);
+  };
+
   // ── Form ────────────────────────────────────────────────────────────────
   if (state.step === "form" || state.step === "preparing") {
     const busy = state.step === "preparing";
     return (
       <form
-        className={`${SHELL} flex flex-col gap-7 p-6 sm:p-8`}
+        className={`${SHELL} font-cormorant flex flex-col gap-5 p-4 sm:p-6`}
         style={CARD}
         onSubmit={(event) => {
           event.preventDefault();
@@ -114,28 +141,33 @@ export default function SendFlow() {
       >
         <div className="flex flex-col items-center gap-3.5 text-center">
           <label htmlFor="send-amount" className="text-sm text-gray-400">Amount</label>
-          <div className="flex w-full items-center justify-center gap-0.5">
-            <span aria-hidden="true" className="font-display text-6xl leading-none text-gray-400 sm:text-[88px]">$</span>
+          <div className="flex items-center justify-center">
+            <span aria-hidden="true" className="-mr-4 font-cinzel text-7xl leading-none text-gray-400 sm:text-[104px]">$</span>
             <input
               id="send-amount"
               type="text"
               inputMode="decimal"
               value={amount}
               onChange={(event) => {
+                if (animationFrame.current !== null) {
+                  cancelAnimationFrame(animationFrame.current);
+                  animationFrame.current = null;
+                }
                 const cleaned = event.target.value.replace(/[^0-9.]/g, "");
                 const firstDot = cleaned.indexOf(".");
-                setAmount(
+                const normalized =
                   firstDot === -1
                     ? cleaned
-                    : cleaned.slice(0, firstDot + 1) + cleaned.slice(firstDot + 1).replace(/\./g, ""),
-                );
+                    : cleaned.slice(0, firstDot + 1) + cleaned.slice(firstDot + 1).replace(/\./g, "");
+                const [whole, fraction] = normalized.split(".");
+                setAmount(fraction === undefined ? whole : `${whole}.${fraction.slice(0, 5)}`);
               }}
               placeholder="0.00"
               autoComplete="off"
               disabled={busy}
               aria-invalid={check.amountError !== null}
-              className="font-display max-w-full bg-transparent text-6xl leading-none text-white outline-none placeholder-gray-600 sm:text-[88px]"
-              style={{ width: `${Math.min(Math.max(amount.length, 4) * 0.58 + 0.3, 8)}em` }}
+              className="send-amount-input flex-none font-cinzel bg-transparent text-center text-7xl leading-none text-white outline-none placeholder-gray-600 sm:text-[104px]"
+              style={{ width: "5em", maxWidth: "5em" }}
             />
           </div>
 
@@ -149,9 +181,9 @@ export default function SendFlow() {
                   key={value}
                   type="button"
                   disabled={busy || tooMuch}
-                  onClick={() => setAmount(String(value))}
+                  onClick={() => animateAmount(value)}
                   aria-pressed={selected}
-                  className={`rounded-full border px-[18px] py-2 text-sm font-medium transition-colors disabled:opacity-40 ${
+                  className={`rounded-full border px-[18px] py-2 text-base font-medium transition-colors disabled:opacity-40 ${
                     selected
                       ? "border-orange-400/60 bg-orange-400/10 text-orange-400"
                       : "border-white/15 text-white hover:border-orange-400/60"
@@ -164,9 +196,20 @@ export default function SendFlow() {
             })}
           </div>
 
-          <p className="flex items-center gap-2 text-[13px] text-gray-400">
-            {available !== null ? <>Available {formatUsdc(available)}</> : "Checking your balance..."}
-            {available !== null && (
+          <p className="flex min-h-7 items-center gap-2 text-lg text-gray-400">
+            <span
+              key={check.amountError ?? (available !== null ? "available" : "checking")}
+              className={check.amountError ? "animate-status-message text-red-400" : "animate-status-message"}
+              role="status"
+            >
+              {check.amountError ??
+                (available !== null ? (
+                  `Available ${formatUsdc(available)}`
+                ) : (
+                  <LoadingText text="Checking your balance" />
+                ))}
+            </span>
+            {available !== null && !check.amountError && (
               <button
                 type="button"
                 disabled={busy}
@@ -177,13 +220,10 @@ export default function SendFlow() {
               </button>
             )}
           </p>
-          {check.amountError && (
-            <p className="text-sm text-red-400" role="status">{check.amountError}</p>
-          )}
         </div>
 
-        <div className="flex flex-col gap-2.5 border-t border-white/[0.07] pt-6">
-          <label htmlFor="send-to" className="text-sm font-medium text-white">To</label>
+        <div className="flex flex-col gap-2 border-t border-white/[0.07] pt-4">
+          <label htmlFor="send-to" className="text-lg font-medium text-white">To</label>
           <input
             id="send-to"
             type="text"
@@ -194,7 +234,7 @@ export default function SendFlow() {
             spellCheck={false}
             disabled={busy}
             aria-invalid={check.addressError !== null}
-            className="w-full rounded-[14px] border border-white/10 px-[18px] py-4 font-mono text-sm text-white placeholder-gray-500 outline-none focus:border-orange-400/60"
+            className="w-full rounded-[14px] border border-white/10 px-[18px] py-4 font-mono text-base text-white placeholder-gray-500 outline-none focus:border-orange-400/60"
             style={FIELD}
           />
           {check.addressError && <p className="text-[13px] text-red-400">{check.addressError}</p>}
@@ -208,7 +248,7 @@ export default function SendFlow() {
           )}
         </div>
 
-        <div className="flex items-center justify-between text-sm text-gray-400">
+        <div className="flex items-center justify-between text-lg text-gray-400">
           <span>Network fee</span>
           <span className="text-white">Paid by Kenfi</span>
         </div>
@@ -224,7 +264,7 @@ export default function SendFlow() {
           size="lg"
           showSuccessState={false}
           disabled={!check.canSubmit || busy}
-          className="w-full"
+          className="w-full py-2.5"
         >
           {busy ? "Checking..." : "Review payment"}
         </PixelPromptButton>
@@ -237,12 +277,12 @@ export default function SendFlow() {
     const signing = state.step === "signing";
     const { prepared } = state;
     return (
-      <div className={`${SHELL} flex flex-col gap-6 p-6 sm:p-8`} style={CARD}>
+      <div className={`${SHELL} font-cormorant flex flex-col gap-6 p-4 sm:p-6`} style={CARD}>
         <Steps current={2} />
 
         <div className="flex flex-col items-center gap-1.5 text-center">
           <span className="text-sm text-gray-400">You are sending</span>
-          <span className="font-display text-7xl leading-none text-white sm:text-[88px]">
+          <span className="font-cinzel text-7xl leading-none text-white sm:text-[88px]">
             {formatUsdcPrecise(prepared.amount)}
           </span>
           <span className="text-sm text-gray-400">USDC on Solana</span>
@@ -290,7 +330,7 @@ export default function SendFlow() {
   // ── Pending ─────────────────────────────────────────────────────────────
   if (state.step === "pending") {
     return (
-      <div className={`${SHELL} flex flex-col gap-5 p-6 sm:p-8`} style={CARD} aria-live="polite">
+      <div className={`${SHELL} font-cormorant flex flex-col gap-5 p-4 sm:p-6`} style={CARD} aria-live="polite">
         <Steps current={3} />
         <div className="flex items-center gap-4">
           <span className="relative flex h-14 w-14 shrink-0 items-center justify-center" aria-hidden="true">
@@ -323,7 +363,7 @@ export default function SendFlow() {
   // ── Confirmed ───────────────────────────────────────────────────────────
   if (state.step === "confirmed") {
     return (
-      <div className={`${SHELL} flex flex-col items-center gap-6 p-6 text-center sm:p-10`} style={CARD} aria-live="polite">
+      <div className={`${SHELL} font-cormorant flex flex-col items-center gap-6 p-4 text-center sm:p-6`} style={CARD} aria-live="polite">
         <span className="relative flex h-24 w-24 items-center justify-center" aria-hidden="true">
           <span className="anim-ring absolute inset-0 rounded-full border-2" style={{ borderColor: "#5FD39A" }} />
           <span
@@ -338,7 +378,7 @@ export default function SendFlow() {
 
         <div className="flex flex-col items-center gap-2">
           <h2 className="font-display text-5xl leading-tight text-white">Payment complete</h2>
-          <span className="font-display text-6xl leading-none text-white">
+          <span className="font-cinzel text-6xl leading-none text-white">
             {formatUsdcPrecise(state.prepared.amount)}
           </span>
           <p className="text-[15px] text-gray-400">
@@ -366,7 +406,7 @@ export default function SendFlow() {
 
   // ── Failed ──────────────────────────────────────────────────────────────
   return (
-    <div className={`${SHELL} flex flex-col gap-5 p-6 sm:p-8`} style={CARD} role="alert">
+    <div className={`${SHELL} font-cormorant flex flex-col gap-5 p-4 sm:p-6`} style={CARD} role="alert">
       <span
         aria-hidden="true"
         className="flex h-12 w-12 items-center justify-center rounded-full"

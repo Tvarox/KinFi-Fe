@@ -7,7 +7,7 @@ import ActivityRow from "../ActivityRow";
 
 const SHOWN = 3;
 
-const CARD = { backgroundColor: "rgba(28, 29, 33, 0.62)" };
+const CARD = { backgroundColor: "rgba(28, 29, 33, 0.48)" };
 const SHELL = "anim-rise overflow-hidden rounded-[22px] border border-white/[0.08] backdrop-blur-md";
 
 function Header() {

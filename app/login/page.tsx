@@ -3,6 +3,7 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import LoadingText from '../components/LoadingText';
 import PixelPromptButton from '../components/PixelPromptButton';
 
 const BENEFITS = [
@@ -24,7 +25,10 @@ export default function LoginPage() {
   if (!ready || authenticated) {
     return (
       <div className="flex min-h-[100dvh] flex-1 items-center justify-center" role="status">
-        <span className="text-sm text-gray-400">{authenticated ? 'Redirecting...' : 'Loading...'}</span>
+        <LoadingText
+          className="text-sm text-gray-400"
+          text={authenticated ? 'Redirecting' : 'Loading'}
+        />
       </div>
     );
   }
@@ -35,7 +39,7 @@ export default function LoginPage() {
 
       <main
         className="anim-rise flex w-full max-w-[440px] flex-col gap-7 rounded-[28px] border border-white/[0.08] p-8 backdrop-blur-lg sm:p-10"
-        style={{ backgroundColor: 'rgba(28, 29, 33, 0.62)' }}
+        style={{ backgroundColor: 'rgba(28, 29, 33, 0.48)' }}
       >
         <div className="flex flex-col gap-2.5 text-center">
           <h1 className="font-display text-[44px] leading-[1.05] text-white sm:text-[46px]">Welcome to Kenfi</h1>

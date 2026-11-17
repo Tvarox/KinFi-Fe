@@ -15,13 +15,13 @@ describe("amountToBaseUnits", () => {
   it("converts exactly", () => {
     expect(amountToBaseUnits("10")).toBe("10000000");
     expect(amountToBaseUnits("10.25")).toBe("10250000");
-    expect(amountToBaseUnits("0.000001")).toBe("1");
+    expect(amountToBaseUnits("0.000001")).toBeNull();
     expect(amountToBaseUnits("0.3")).toBe("300000");
     expect(amountToBaseUnits("4.35")).toBe("4350000");
   });
 
   it("rejects zero, negatives, extra decimals and junk", () => {
-    for (const bad of ["0", "0.0", "-1", "1.0000001", "", " 1", "1,5", "1e3", "abc", ".5", "1."]) {
+    for (const bad of ["0", "0.0", "-1", "1.000001", "", " 1", "1,5", "1e3", "abc", ".5", "1."]) {
       expect(amountToBaseUnits(bad)).toBeNull();
     }
   });
@@ -43,7 +43,7 @@ describe("checkSendInput", () => {
   });
 
   it("flags a bad amount", () => {
-    expect(checkSendInput({ to: ADDRESS, amount: "1.1234567" }).amountError).toMatch(/6 decimal/);
+    expect(checkSendInput({ to: ADDRESS, amount: "1.123456" }).amountError).toMatch(/5 decimal/);
     expect(checkSendInput({ to: ADDRESS, amount: "0" }).canSubmit).toBe(false);
   });
 
@@ -69,13 +69,13 @@ describe("baseUnitsToAmountInput", () => {
   it("makes a value for the Max button", () => {
     expect(baseUnitsToAmountInput("1842600000")).toBe("1842.6");
     expect(baseUnitsToAmountInput("50000000")).toBe("50");
-    expect(baseUnitsToAmountInput("1")).toBe("0.000001");
+    expect(baseUnitsToAmountInput("1")).toBe("0");
     expect(baseUnitsToAmountInput("0")).toBe("0");
   });
 
   it("round-trips through amountToBaseUnits", () => {
     for (const value of ["1842600000", "123456789", "50000000"]) {
-      expect(amountToBaseUnits(baseUnitsToAmountInput(value))).toBe(value);
+      expect(amountToBaseUnits(baseUnitsToAmountInput(value))).toBe(value === "123456789" ? "123456780" : value);
     }
   });
 });

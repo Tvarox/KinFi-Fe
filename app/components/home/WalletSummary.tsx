@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { shortenAddress } from "@/lib/format";
 
-const CARD = { backgroundColor: "rgba(28, 29, 33, 0.62)" };
-const SHELL = "anim-rise rounded-[22px] border border-white/[0.08] p-6 backdrop-blur-md";
+const CARD = { backgroundColor: "rgba(28, 29, 33, 0.48)" };
+const SHELL = "anim-rise rounded-[22px] border border-white/[0.08] p-5 backdrop-blur-md";
 
 /** The wallet address with a copy button, and the plain facts about the wallet. */
 export default function WalletSummary({ address }: { address: string | null }) {
@@ -46,7 +46,7 @@ export default function WalletSummary({ address }: { address: string | null }) {
 
       <section aria-label="Good to know" className={`${SHELL} flex flex-col gap-4`} style={CARD}>
         <h2 className="font-display text-[26px] text-white">Good to know</h2>
-        <ul className="flex flex-col gap-3.5 text-sm leading-relaxed text-gray-300">
+        <ul className="font-cormorant flex flex-col gap-3.5 text-[17px] leading-relaxed text-gray-300">
           <li className="flex gap-3">
             <span aria-hidden="true" className="text-orange-400">●</span>
             No seed phrase. Your wallet is created and secured for you.

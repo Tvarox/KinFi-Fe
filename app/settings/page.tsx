@@ -5,16 +5,16 @@ import SessionCard from "./components/SessionCard";
 export default function SettingsPage() {
   return (
     <div
-      className="flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-12 lg:py-10"
+      className="flex-1 px-4 py-4 sm:px-6 sm:py-5 lg:px-12 lg:py-5"
       style={{ backgroundColor: "transparent", position: "relative", zIndex: 10 }}
     >
-      <div className="mx-auto flex max-w-3xl flex-col gap-6">
+      <div className="mx-auto flex max-w-3xl flex-col gap-4">
         <header className="flex flex-col gap-1">
-          <h1 className="font-display text-4xl text-white sm:text-[44px]">Settings</h1>
-          <p className="text-[15px] text-gray-400">Your account and wallet details.</p>
+          <h1 className="font-cinzel text-4xl text-white sm:text-[44px]">Settings</h1>
+          <p className="font-cormorant text-[19px] text-gray-400">Your account and wallet details.</p>
         </header>
 
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-3">
           <ProfileCard />
           <WalletCard />
           <SessionCard />

@@ -16,10 +16,10 @@ export default function ProfileCard() {
   return (
     <section
       aria-label="Profile"
-      className="anim-rise flex flex-col gap-[18px] rounded-[22px] border border-white/[0.08] p-6 backdrop-blur-md"
-      style={{ backgroundColor: "rgba(28, 29, 33, 0.62)" }}
+      className="anim-rise font-cormorant flex flex-col gap-[18px] rounded-[22px] border border-white/[0.08] p-5 backdrop-blur-md"
+      style={{ backgroundColor: "rgba(28, 29, 33, 0.48)" }}
     >
-      <h2 className="font-display text-[26px] text-white">Profile</h2>
+      <h2 className="font-cinzel text-[24px] text-white">Profile</h2>
 
       <div className="flex items-center gap-4">
         <div
@@ -31,8 +31,8 @@ export default function ProfileCard() {
         </div>
 
         <div className="flex min-w-0 flex-col gap-1">
-          <span className="text-[13px] text-gray-400">Signed in with {method}</span>
-          <span className="truncate text-base font-medium text-white">{email ?? "Not available"}</span>
+          <span className="text-lg text-gray-400">Signed in with {method}</span>
+          <span className="truncate text-lg font-medium text-white">{email ?? "Not available"}</span>
         </div>
       </div>
     </section>

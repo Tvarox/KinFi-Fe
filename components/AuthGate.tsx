@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Fragment, useEffect } from 'react';
 import AccountSetupProvider from './AccountSetup';
 import EnsureSolanaWallet from './EnsureSolanaWallet';
+import LoadingText from '../app/components/LoadingText';
 
 const PUBLIC_PATHS = ['/login'];
 
@@ -30,8 +31,12 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
 
   if (!ready || !authenticated) {
     return (
-      <div className="flex flex-1 items-center justify-center p-8 text-sm text-gray-400">
-        Loading...
+      <div className="flex min-h-[100dvh] flex-col items-center justify-center gap-5 p-8 text-lg text-gray-400">
+        <span
+          className="anim-spin h-9 w-9 rounded-full border-2 border-white/15 border-t-orange-300"
+          aria-hidden="true"
+        />
+        <LoadingText text="Loading" />
       </div>
     );
   }

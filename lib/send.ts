@@ -43,10 +43,10 @@ export function explorerTxUrl(signature: string): string {
 }
 
 const ADDRESS_PATTERN = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
-// Same rule as the backend: up to 12 whole digits, up to 6 decimals.
-const AMOUNT_PATTERN = /^(\d{1,12})(?:\.(\d{1,6}))?$/;
+// The UI accepts up to 12 whole digits and 5 decimal places.
+const AMOUNT_PATTERN = /^(\d{1,12})(?:\.(\d{1,5}))?$/;
 
-/** "10.25" to base units. Null if it is not a positive amount with at most 6 decimals. */
+/** "10.25" to base units. Null if it is not a positive amount with at most 5 decimals. */
 export function amountToBaseUnits(amount: string): string | null {
   const match = AMOUNT_PATTERN.exec(amount);
   if (!match) return null;
@@ -83,7 +83,7 @@ export function checkSendInput(input: {
   let amountError: string | null = null;
   const base = amount === "" ? null : amountToBaseUnits(amount);
   if (amount !== "" && base === null) {
-    amountError = "Enter an amount like 10.25, with at most 6 decimal places.";
+    amountError = "Enter an amount like 10.25, with at most 5 decimal places.";
   } else if (base !== null && input.available != null && /^\d+$/.test(input.available)) {
     if (BigInt(base) > BigInt(input.available)) amountError = "That is more than your balance.";
   }
@@ -99,6 +99,10 @@ export function checkSendInput(input: {
 export function baseUnitsToAmountInput(baseUnits: string): string {
   const value = BigInt(baseUnits);
   const unit = BigInt(10) ** BigInt(USDC_DECIMALS);
-  const fraction = (value % unit).toString().padStart(USDC_DECIMALS, "0").replace(/0+$/, "");
+  const fraction = (value % unit)
+    .toString()
+    .padStart(USDC_DECIMALS, "0")
+    .slice(0, 5)
+    .replace(/0+$/, "");
   return fraction ? `${value / unit}.${fraction}` : (value / unit).toString();
 }

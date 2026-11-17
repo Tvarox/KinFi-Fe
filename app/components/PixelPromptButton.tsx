@@ -31,16 +31,14 @@ interface PixelPromptButtonProps {
 const DEFAULT_COLUMNS = 36;
 const DEFAULT_ROWS = 10;
 const PIXEL_SIZE = 3;
-const GAP = 2;
+const GAP = 3;
 const STEP = PIXEL_SIZE + GAP;
 const TWINKLE_MS = 120;
-// A grid of this size gets one toggle per tick. Bigger buttons get more, so
-// the dots look equally dense on a small button and a full-width one.
-const BASE_PIXELS = DEFAULT_COLUMNS * DEFAULT_ROWS;
+const MAX_TWINKLE_PIXELS = 12;
 
 const SIZES = {
   md: { box: "px-6 py-2 rounded-xl", text: "text-sm font-medium tracking-wide" },
-  lg: { box: "px-7 py-3.5 rounded-[14px]", text: "text-base font-semibold" },
+  lg: { box: "px-0 py-3.5 rounded-[14px]", text: "text-lg font-semibold" },
 } as const;
 
 function PixelPromptButton({
@@ -57,6 +55,7 @@ function PixelPromptButton({
 }: PixelPromptButtonProps) {
   const [isPressed, setIsPressed] = useState(false);
   const [hasCopied, setHasCopied] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const [twinklePixels, setTwinklePixels] = useState<Set<number>>(new Set());
   const [hoverPixels, setHoverPixels] = useState<Map<number, number>>(new Map());
   const [grid, setGrid] = useState({ columns: DEFAULT_COLUMNS, rows: DEFAULT_ROWS });
@@ -116,7 +115,7 @@ function PixelPromptButton({
 
   // Twinkle: randomly light up pixels.
   useEffect(() => {
-    if (effectOnly || disabled || (showSuccessState && hasCopied)) return;
+    if (disabled || (showSuccessState && hasCopied)) return;
     if (
       typeof window !== "undefined" &&
       window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
@@ -125,15 +124,19 @@ function PixelPromptButton({
     }
 
     const total = columns * rows;
-    const togglesPerTick = Math.max(1, Math.round(total / BASE_PIXELS));
 
     const interval = setInterval(() => {
       setTwinklePixels((prev) => {
         const next = new Set(prev);
-        for (let i = 0; i < togglesPerTick; i++) {
-          const idx = Math.floor(Math.random() * total);
-          if (next.has(idx)) next.delete(idx);
-          else next.add(idx);
+        const idx = Math.floor(Math.random() * total);
+        if (next.has(idx)) {
+          next.delete(idx);
+        } else {
+          if (next.size >= MAX_TWINKLE_PIXELS) {
+            const active = Array.from(next);
+            next.delete(active[Math.floor(Math.random() * active.length)]);
+          }
+          next.add(idx);
         }
         return next;
       });
@@ -144,7 +147,7 @@ function PixelPromptButton({
 
   // Only the lit pixels are drawn. Dark ones are the button's own background.
   const lit = new Set<number>(hoverPixels.keys());
-  if (!effectOnly) for (const index of twinklePixels) lit.add(index);
+  for (const index of twinklePixels) lit.add(index);
 
   const pixels = Array.from(lit)
     .filter((index) => index < columns * rows)
@@ -161,12 +164,18 @@ function PixelPromptButton({
             left: col * STEP,
             width: PIXEL_SIZE,
             height: PIXEL_SIZE,
-            backgroundColor: "rgba(255, 228, 194, 0.16)",
-            border: isBorder ? "1px solid rgba(255, 228, 194, 0.1)" : "none",
+            backgroundColor: isHovered
+              ? "rgba(255, 228, 194, 0.16)"
+              : "rgba(255, 255, 255, 0.1)",
+            border: isBorder
+              ? `1px solid ${isHovered ? "rgba(255, 228, 194, 0.1)" : "rgba(255, 255, 255, 0.08)"}`
+              : "none",
             borderRadius: "1px",
             opacity: hoverPixels.get(index) ?? 1,
             transition: "background-color 0.1s ease",
-            boxShadow: "0 0 5px rgba(255, 228, 194, 0.22), 0 0 10px rgba(255, 161, 85, 0.12)",
+            boxShadow: isHovered
+              ? "0 0 5px rgba(255, 228, 194, 0.22), 0 0 10px rgba(255, 161, 85, 0.12)"
+              : "0 0 4px rgba(255, 255, 255, 0.08)",
           }}
         />
       );
@@ -176,10 +185,10 @@ function PixelPromptButton({
   const classes =
     `relative inline-flex items-center justify-center overflow-hidden ${look.box}` +
     (effectOnly
-      ? " text-white border border-white/15 hover:border-white/30"
+      ? " text-white border border-white/15 bg-[#1C1D21]/60 hover:text-[#131416] hover:border-[#D97845] hover:shadow-[0_0_18px_rgba(255,161,90,0.35)]"
       : hasCopied
         ? " bg-green-500 text-white"
-        : " text-[#131416] border border-[#D97845] hover:shadow-[0_0_18px_rgba(255,161,90,0.35)]") +
+        : " text-white border border-white/15 bg-[#1C1D21]/60 hover:text-[#131416] hover:border-[#D97845] hover:shadow-[0_0_18px_rgba(255,161,90,0.35)]") +
     (disabled ? " opacity-40 cursor-not-allowed" : "") +
     (className ? " " + className : "");
 
@@ -197,14 +206,20 @@ function PixelPromptButton({
         className="absolute inset-0 pointer-events-none"
         style={{
           padding: `${GAP}px`,
-          backgroundColor: effectOnly ? "transparent" : "#D97845",
+          backgroundColor: isHovered ? "#D97845" : "transparent",
         }}
       >
         {pixels}
       </div>
 
       {/* Button content */}
-      <span className={`relative z-10 ${look.text}`} style={{ userSelect: "none" }}>
+      <span
+        className={`relative z-10 ${look.text}`}
+        style={{
+          userSelect: "none",
+          fontFamily: "'Cinzel', serif",
+        }}
+      >
         {children ?? (hasCopied ? "✅ Copied" : label)}
       </span>
     </>
@@ -216,7 +231,11 @@ function PixelPromptButton({
         href={href}
         onClick={handleClick}
         onMouseMove={handleMouseMove}
-        onMouseLeave={() => setHoverPixels(new Map())}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => {
+          setIsHovered(false);
+          setHoverPixels(new Map());
+        }}
         className={classes}
         style={style}
       >
@@ -231,7 +250,11 @@ function PixelPromptButton({
       disabled={disabled}
       onClick={handleClick}
       onMouseMove={handleMouseMove}
-      onMouseLeave={() => setHoverPixels(new Map())}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        setHoverPixels(new Map());
+      }}
       className={classes}
       style={style}
     >

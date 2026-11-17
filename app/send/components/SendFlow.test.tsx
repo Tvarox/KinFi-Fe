@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup, waitFor } from "@testing-library/react";
 import type { SendState } from "@/lib/use-send";
 
 const prepare = vi.fn();
@@ -54,12 +54,12 @@ describe("SendFlow: form", () => {
     expect(button).toBeEnabled();
   });
 
-  it("explains a bad address and a bad amount", () => {
+  it("explains a bad address and limits decimal input", () => {
     render(<SendFlow />);
     type("To", "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913");
     type("Amount", "1.1234567");
     expect(screen.getByText(/valid Solana address/)).toBeInTheDocument();
-    expect(screen.getByText(/at most 6 decimal places/)).toBeInTheDocument();
+    expect(screen.getByLabelText("Amount")).toHaveValue("1.12345");
     expect(screen.getByRole("button", { name: "Review payment" })).toBeDisabled();
   });
 
@@ -78,12 +78,12 @@ describe("SendFlow: form", () => {
     expect(screen.getByLabelText("Amount")).toHaveValue("1842.6");
   });
 
-  it("fills a quick amount, and marks the one picked", () => {
+  it("fills a quick amount, and marks the one picked", async () => {
     render(<SendFlow />);
     const ten = screen.getByRole("button", { name: "$10" });
     expect(ten).toHaveAttribute("aria-pressed", "false");
     fireEvent.click(ten);
-    expect(screen.getByLabelText("Amount")).toHaveValue("10");
+    await waitFor(() => expect(screen.getByLabelText("Amount")).toHaveValue("10"));
     expect(screen.getByRole("button", { name: "$10" })).toHaveAttribute("aria-pressed", "true");
   });
 

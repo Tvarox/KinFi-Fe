@@ -5,6 +5,7 @@ import { useState } from "react";
 import { filterHistory, formatClock, groupByDay, type HistoryFilter } from "@/lib/history";
 import { useHistory } from "@/lib/use-history";
 import ActivityRow from "../../components/ActivityRow";
+import LoadingText from "../../components/LoadingText";
 
 const TABS: Array<{ id: HistoryFilter; label: string }> = [
   { id: "all", label: "All" },
@@ -12,7 +13,7 @@ const TABS: Array<{ id: HistoryFilter; label: string }> = [
   { id: "received", label: "Received" },
 ];
 
-const CARD = { backgroundColor: "rgba(28, 29, 33, 0.62)" };
+const CARD = { backgroundColor: "rgba(28, 29, 33, 0.48)" };
 const SHELL = "anim-rise overflow-hidden rounded-[22px] border border-white/[0.08] backdrop-blur-md";
 
 export default function ActivityList() {
@@ -21,9 +22,11 @@ export default function ActivityList() {
 
   if (state.status === "loading" || state.status === "creating-wallet") {
     return (
-      <div className={`${SHELL} p-6`} style={CARD} aria-busy="true">
-        <p className="mb-5 text-sm text-gray-400" role="status">
-          {state.status === "creating-wallet" ? "Setting up your wallet..." : "Loading your activity..."}
+      <div className={`${SHELL} font-cormorant p-6`} style={CARD} aria-busy="true">
+        <p className="mb-5 text-lg text-gray-400" role="status">
+          <LoadingText
+            text={state.status === "creating-wallet" ? "Setting up your wallet" : "Loading your activity"}
+          />
         </p>
         <div className="flex flex-col gap-5">
           {[0, 1, 2, 3].map((row) => (
@@ -60,7 +63,7 @@ export default function ActivityList() {
   const groups = groupByDay(visible);
 
   return (
-    <div className={SHELL} style={CARD}>
+    <div className={`${SHELL} font-cormorant`} style={CARD}>
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/[0.07] px-6 py-4">
         <div
           className="flex gap-1.5 rounded-xl p-1"
@@ -163,7 +166,7 @@ export default function ActivityList() {
               disabled={loadingMore}
               className="rounded-xl border border-white/15 px-[22px] py-2.5 text-sm font-medium text-white transition-colors hover:border-white/40 disabled:opacity-50"
             >
-              {loadingMore ? "Loading..." : "Load more"}
+              {loadingMore ? <LoadingText text="Loading" /> : "Load more"}
             </button>
           )}
         </div>

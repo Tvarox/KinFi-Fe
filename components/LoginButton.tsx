@@ -2,12 +2,17 @@
 
 import { usePrivy } from '@privy-io/react-auth';
 import PixelPromptButton from '../app/components/PixelPromptButton';
+import LoadingText from '../app/components/LoadingText';
 
 export default function LoginButton() {
   const { authenticated, login, logout, ready } = usePrivy();
 
   if (!ready) {
-    return <div className="text-sm text-gray-400">Loading...</div>;
+    return (
+      <div className="text-sm text-gray-400">
+        <LoadingText text="Loading" />
+      </div>
+    );
   }
 
   if (!authenticated) {

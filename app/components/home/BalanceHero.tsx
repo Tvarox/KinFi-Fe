@@ -1,4 +1,5 @@
 import PixelPromptButton from "../PixelPromptButton";
+import LoadingText from "../LoadingText";
 import { formatUsdc } from "@/lib/format";
 import type { QueryState, UsdcBalance } from "@/lib/use-backend-query";
 
@@ -8,7 +9,16 @@ interface BalanceHeroProps {
   onRefresh: () => void;
 }
 
-const CARD = { backgroundColor: "rgba(28, 29, 33, 0.62)" };
+const CARD = { backgroundColor: "rgba(28, 29, 33, 0.48)" };
+
+function LoadingStatus({ settingUp }: { settingUp: boolean }) {
+  return (
+    <LoadingText
+      className="font-cormorant text-lg text-gray-400"
+      text={settingUp ? "Setting up your wallet" : "Loading your balance"}
+    />
+  );
+}
 
 function updatedText(iso: string): string {
   const date = new Date(iso);
@@ -18,14 +28,20 @@ function updatedText(iso: string): string {
 
 function Actions() {
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <PixelPromptButton label="Send" href="/send" size="lg" showSuccessState={false} />
+    <div className="flex w-40 flex-col items-stretch gap-3 lg:items-end">
+      <PixelPromptButton
+        label="Send"
+        href="/send"
+        size="lg"
+        showSuccessState={false}
+        className="w-full"
+      />
       <PixelPromptButton
         label="Receive"
         href="/receive"
         size="lg"
         effectOnly
-        className="bg-[#1C1D21]/60"
+        className="w-full bg-[#1C1D21]/60"
       />
     </div>
   );
@@ -33,7 +49,7 @@ function Actions() {
 
 export default function BalanceHero({ state, refreshing, onRefresh }: BalanceHeroProps) {
   const shell =
-    "anim-rise flex flex-col gap-7 rounded-[22px] border border-white/[0.08] p-7 backdrop-blur-md sm:p-10";
+    "anim-rise flex flex-col gap-7 rounded-[22px] border border-white/[0.08] p-4 backdrop-blur-md sm:p-6 lg:flex-row lg:items-center lg:justify-between";
 
   if (state.status === "loading" || state.status === "creating-wallet") {
     const settingUp = state.status === "creating-wallet";
@@ -42,9 +58,7 @@ export default function BalanceHero({ state, refreshing, onRefresh }: BalanceHer
         <div className="flex flex-col gap-3">
           <span className="text-sm text-gray-400">Total balance</span>
           <div className="skeleton h-20 w-72 max-w-full" style={{ borderRadius: 14 }} />
-          <span className="text-sm text-gray-400" role="status">
-            {settingUp ? "Setting up your wallet..." : "Loading your balance..."}
-          </span>
+          <LoadingStatus settingUp={settingUp} />
         </div>
         <Actions />
       </section>
@@ -55,7 +69,7 @@ export default function BalanceHero({ state, refreshing, onRefresh }: BalanceHer
     return (
       <section aria-label="Balance" className={shell} style={CARD}>
         <div className="flex flex-col gap-3" role="alert">
-          <span className="text-sm text-gray-400">Total balance</span>
+          <span className="font-cormorant text-lg text-gray-400">Total balance</span>
           <h2 className="font-display text-4xl leading-tight text-white">We can&apos;t load your balance</h2>
           <p className="max-w-md text-sm leading-relaxed text-gray-300">
             {state.message} Your money is not affected.
@@ -80,9 +94,9 @@ export default function BalanceHero({ state, refreshing, onRefresh }: BalanceHer
   return (
     <section aria-label="Balance" className={shell} style={CARD}>
       <div className="flex flex-col gap-2">
-        <span className="text-sm text-gray-400">Total balance</span>
+        <span className="font-cormorant text-lg text-gray-400">Total balance</span>
         <span
-          className="font-display text-7xl leading-none text-white sm:text-8xl lg:text-[104px]"
+          className="font-cinzel text-7xl leading-none text-white sm:text-8xl lg:text-[104px]"
           aria-live="polite"
         >
           {amount}
